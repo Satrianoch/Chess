@@ -23,6 +23,7 @@
 				this.body = document.body
 				this.tabHTML = document.createElement('table')
 				this.tabJS = []
+				this.tmp
 				
 				for(let i = this.row-1; i >= 0; i--)
 				{
@@ -47,7 +48,10 @@
 						}
 						td.addEventListener('click', function()
 						{
+							if(chess.tmp != undefined)
+								chess.tmp.classList.remove('select')
 							this.classList.add('select')
+							chess.tmp = this
 						})
 						this.tabJS[i][j] = td
 						tr.appendChild(td)
