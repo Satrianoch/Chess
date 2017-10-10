@@ -8,9 +8,10 @@
 		table{margin: auto;margin-top: 50vh;transform: translateY(-50%)}
 		td{width:60px;height:60px;border:2px solid}
 		.black{background:#433}
-		.white{background:#FFB}
+		.white{background:#FB1}
 		.select{border-color:red}
-		.pionW{background-image: url('pion-2.png'); background-size: 100% 100%}
+		#pionB{background-image: url('pionB.png'); background-size: 100% 100%}
+		#pionW{background-image: url('pionW.png'); background-size: 100% 100%}
 	</style>
 </head>
 <body>
@@ -33,6 +34,8 @@
 					for(let j = 0; j < this.col; j++)
 					{
 						const td = document.createElement('td')
+						td.dataset.row = i
+						td.dataset.column = j
 						if((i+1) % 2 == 0)
 						{
 							if((j+1) % 2 == 0)
@@ -48,15 +51,27 @@
 								td.classList.add('white')		
 						}
 						
-						if(i == 6 || i == 1)
+						if(i == 0 || i == 1 )
 						{
-							td.classList.add('pionW')
+							td.id = 'pionB'
+						}
+						if(i == 6 || i == 7)
+						{
+							td.id = 'pionW'
 						}
 						
 						td.addEventListener('click', function()
 						{
 							if(chess.tmp != undefined)
+							{
 								chess.tmp.classList.remove('select')
+								if(chess.tmp.id)
+								{
+									chess.deplace(chess.tmp, this)
+									chess.tmp = undefined
+									return
+								}
+							}
 							this.classList.add('select')
 							chess.tmp = this
 						})
@@ -66,8 +81,40 @@
 					this.tabHTML.appendChild(tr)
 				}
 				this.body.appendChild(this.tabHTML)
+			},
+			
+			deplace : function(oldPos, newPos)
+			{
+				const piece = ['pionB','pionW']
+				if(piece.includes(oldPos.id))
+				{
+					switch(oldPos.id)
+					{
+						case 'pionB' : 
+						{
+							if(newPos.getAttribute('data-column') == oldPos.getAttribute('data-column')
+								&& Number(newPos.getAttribute('data-row')) - 1 == Number(oldPos.getAttribute('data-row')))
+							{		
+								newPos.id = oldPos.id
+								oldPos.id = ''
+							}
+							break;
+						}
+						case 'pionW' : 
+						{
+							if(newPos.getAttribute('data-column') == oldPos.getAttribute('data-column')
+								&& Number(newPos.getAttribute('data-row')) + 1 == Number(oldPos.getAttribute('data-row')))
+							{		
+								newPos.id = oldPos.id
+								oldPos.id = ''
+							}
+						}
+					}
+
+				}
 			}
 		}
+		
 		chess.init(8,8)
 	</script>
 </body>
