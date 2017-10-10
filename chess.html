@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Chess</title>
+	<style>
+		body{margin:0;padding:0}
+		table{margin: auto;margin-top: 50vh;transform: translateY(-50%)}
+		td{width:50px;height:50px;border:2px solid}
+		.black{background:#333}
+		.white{background:#FFF}
+		.select{border-color:#FA7A55}
+	</style>
+</head>
+<body>
+	<script>
+		const chess = 
+		{ 
+			init : function(row, col)
+			{	
+				this.row = row
+				this.col = col
+				this.body = document.body
+				this.tabHTML = document.createElement('table')
+				this.tabJS = []
+				
+				for(let i = this.row-1; i >= 0; i--)
+				{
+					const tr = document.createElement('tr')
+					this.tabJS[i] = []
+					for(let j = 0; j < this.col; j++)
+					{
+						const td = document.createElement('td')
+						if((i+1) % 2 == 0)
+						{
+							if((j+1) % 2 == 0)
+								td.classList.add('black')
+							else
+								td.classList.add('white')
+						}
+						else
+						{
+							if((j+1) % 2 != 0)
+								td.classList.add('black')
+							else
+								td.classList.add('white')		
+						}
+						td.addEventListener('click', function()
+						{
+							this.classList.add('select')
+						})
+						this.tabJS[i][j] = td
+						tr.appendChild(td)
+					}
+					this.tabHTML.appendChild(tr)
+				}
+				this.body.appendChild(this.tabHTML)
+			}
+		}
+		chess.init(8,8)
+	</script>
+</body>
+</html>
