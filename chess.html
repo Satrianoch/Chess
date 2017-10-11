@@ -51,11 +51,11 @@
 								td.classList.add('white')		
 						}
 						
-						if(i == 0 || i == 1 )
+						if(i == 1 )
 						{
 							td.id = 'pionB'
 						}
-						if(i == 6 || i == 7)
+						if(i == this.row - 2)
 						{
 							td.id = 'pionW'
 						}
@@ -92,9 +92,12 @@
 					{
 						case 'pionB' : 
 						{
-							if(newPos.getAttribute('data-column') == oldPos.getAttribute('data-column')
-								&& Number(newPos.getAttribute('data-row')) - 1 == Number(oldPos.getAttribute('data-row')))
-							{		
+							if((Number(newPos.getAttribute('data-row')) - 1 == Number(oldPos.getAttribute('data-row'))
+							&& ((newPos.getAttribute('data-column') == oldPos.getAttribute('data-column') && newPos.id == '' )
+								 || (newPos.getAttribute('data-column') != oldPos.getAttribute('data-column') && newPos.id !='')))
+								|| (Number(newPos.getAttribute('data-row')) - 2 == Number(oldPos.getAttribute('data-row')) && 
+									 (Number(oldPos.getAttribute('data-row') == 1)) && (newPos.getAttribute('data-column') == oldPos.getAttribute('data-column'))))
+							{	
 								newPos.id = oldPos.id
 								oldPos.id = ''
 							}
@@ -102,13 +105,18 @@
 						}
 						case 'pionW' : 
 						{
-							if(newPos.getAttribute('data-column') == oldPos.getAttribute('data-column')
-								&& Number(newPos.getAttribute('data-row')) + 1 == Number(oldPos.getAttribute('data-row')))
-							{		
+							if((Number(newPos.getAttribute('data-row')) + 1 == Number(oldPos.getAttribute('data-row'))
+							&& ((newPos.getAttribute('data-column') == oldPos.getAttribute('data-column') && newPos.id == '' )
+								 || (newPos.getAttribute('data-column') != oldPos.getAttribute('data-column') && newPos.id !='')))
+								|| (Number(newPos.getAttribute('data-row')) + 2 == Number(oldPos.getAttribute('data-row')) && 
+									 (Number(oldPos.getAttribute('data-row') == this.row - 2)) && (newPos.getAttribute('data-column') == oldPos.getAttribute('data-column'))))
+							{	
 								newPos.id = oldPos.id
 								oldPos.id = ''
 							}
+							break;
 						}
+							
 					}
 
 				}
