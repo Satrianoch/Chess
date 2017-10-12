@@ -39,25 +39,28 @@
 						if((i+1) % 2 == 0)
 						{
 							if((j+1) % 2 == 0)
-								td.classList.add('black')
-							else
 								td.classList.add('white')
+							else
+								td.classList.add('black')
 						}
 						else
 						{
 							if((j+1) % 2 != 0)
-								td.classList.add('black')
+								td.classList.add('white')
 							else
-								td.classList.add('white')		
+								td.classList.add('black')		
 						}
 						
 						if(i == 1 )
 						{
-							td.id = 'pionB'
+							td.id = 'pionW'
+							td.dataset.player = 1
 						}
 						if(i == this.row - 2)
 						{
-							td.id = 'pionW'
+							td.id = 'pionB'
+							td.dataset.player = 2
+
 						}
 						
 						td.addEventListener('click', function()
@@ -85,32 +88,34 @@
 			
 			deplace : function(oldPos, newPos)
 			{
-				const piece = ['pionB','pionW']
+				const piece = ['pionW','pionB']
 				if(piece.includes(oldPos.id))
 				{
+					const newPosRow = newPos.getAttribute('data-row')
+					const newPosCol = newPos.getAttribute('data-column')
+					const oldPosRow = oldPos.getAttribute('data-row')
+					const oldPosCol = oldPos.getAttribute('data-column')
+					const newPosPlayer = newPos.getAttribute('data-player')
+					let player
 					switch(oldPos.id)
 					{
-						case 'pionB' : 
+						case 'pionW' : 
 						{
-							if((Number(newPos.getAttribute('data-row')) - 1 == Number(oldPos.getAttribute('data-row'))
-							&& ((newPos.getAttribute('data-column') == oldPos.getAttribute('data-column') && newPos.id == '' )
-								 || (newPos.getAttribute('data-column') != oldPos.getAttribute('data-column') && newPos.id !='')))
-								|| (Number(newPos.getAttribute('data-row')) - 2 == Number(oldPos.getAttribute('data-row')) && 
-									 (Number(oldPos.getAttribute('data-row') == 1)) && (newPos.getAttribute('data-column') == oldPos.getAttribute('data-column'))))
+							player = 1
+							if((Number(newPosRow) - 1 == Number(oldPosRow) && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (Number(newPosCol) + 1 == Number(oldPosCol) || Number(newPosCol) - 1 == Number(oldPosCol)) && newPosPlayer != player))) || (Number(newPosRow) - 2 == Number(oldPosRow) && (Number(oldPosRow == 1)) && this.tabJS[Number(newPosRow)-1][Number(newPosCol)].id == '' && newPos.id == '' && (newPosCol == oldPosCol)))
 							{	
+								newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
 								newPos.id = oldPos.id
 								oldPos.id = ''
 							}
 							break;
 						}
-						case 'pionW' : 
+						case 'pionB' : 
 						{
-							if((Number(newPos.getAttribute('data-row')) + 1 == Number(oldPos.getAttribute('data-row'))
-							&& ((newPos.getAttribute('data-column') == oldPos.getAttribute('data-column') && newPos.id == '' )
-								 || (newPos.getAttribute('data-column') != oldPos.getAttribute('data-column') && newPos.id !='')))
-								|| (Number(newPos.getAttribute('data-row')) + 2 == Number(oldPos.getAttribute('data-row')) && 
-									 (Number(oldPos.getAttribute('data-row') == this.row - 2)) && (newPos.getAttribute('data-column') == oldPos.getAttribute('data-column'))))
-							{	
+							player = 2
+							if((Number(newPosRow) + 1 == Number(oldPosRow)&& ((newPosCol == oldPosCol && newPos.id == '' ) || (newPos.id !='' && (Number(newPosCol) + 1 == Number(oldPosCol) || Number(newPosCol) - 1 == Number(oldPosCol)) && newPosPlayer != player))) || (Number(newPosRow) + 2 == Number(oldPosRow) && (Number(oldPosRow == this.row - 2)) && this.tabJS[Number(newPosRow)+1][Number(newPosCol)].id == '' && newPos.id == '' && (newPosCol == oldPosCol)))
+							{
+								newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
 								newPos.id = oldPos.id
 								oldPos.id = ''
 							}
