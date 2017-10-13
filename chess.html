@@ -10,8 +10,8 @@
 		.black{background:#433}
 		.white{background:#FB1}
 		.select{border-color:red}
-		#pionB{background-image: url('pionB.png'); background-size: 100% 100%}
-		#pionW{background-image: url('pionW.png'); background-size: 100% 100%}
+		#pion[data-player='2']{background-image: url('pionB.png'); background-size: 100% 100%}
+		#pion[data-player='1']{background-image: url('pionW.png'); background-size: 100% 100%}
 	</style>
 </head>
 <body>
@@ -27,6 +27,7 @@
 				this.tabJS = []
 				this.tmp
 				this.turn = 1
+				this.pieces = ['pion']
 				
 				for(let i = this.row-1; i >= 0; i--)
 				{
@@ -52,16 +53,16 @@
 								td.classList.add('black')		
 						}
 						
-						if(i == 1 )
+						if(i == 1)
 						{
-							td.id = 'pionW'
+							td.id = 'pion'
 							td.dataset.player = 1
 						}
+						
 						if(i == this.row - 2)
 						{
-							td.id = 'pionB'
+							td.id = 'pion'
 							td.dataset.player = 2
-
 						}
 						
 						td.addEventListener('click', function()
@@ -72,7 +73,8 @@
 								if(chess.tmp.id)
 								{
 									if(chess.tmp.getAttribute('data-player') == chess.turn)
-										chess.deplace(chess.tmp, this)
+										if(chess.pieces.includes(chess.tmp.id))
+											chess.deplace(chess.tmp, this)
 									chess.tmp = undefined
 									return
 								}
@@ -90,42 +92,26 @@
 			
 			deplace : function(oldPos, newPos)
 			{
-				const piece = ['pionW','pionB']
-				if(piece.includes(oldPos.id))
+				const newPosRow = newPos.getAttribute('data-row')
+				const newPosCol = newPos.getAttribute('data-column')
+				const oldPosRow = oldPos.getAttribute('data-row')
+				const oldPosCol = oldPos.getAttribute('data-column')
+				const newPosPlayer = newPos.getAttribute('data-player')
+				const player = this.turn
+				const NegOrPos = this.turn == 1 ? -1 : 1
+				const side = this.turn == 1 ? 1 : (this.row - 2)
+				switch(oldPos.id)
 				{
-					const newPosRow = newPos.getAttribute('data-row')
-					const newPosCol = newPos.getAttribute('data-column')
-					const oldPosRow = oldPos.getAttribute('data-row')
-					const oldPosCol = oldPos.getAttribute('data-column')
-					const newPosPlayer = newPos.getAttribute('data-player')
-					let player
-					switch(oldPos.id)
+					case 'pion' : 
 					{
-						case 'pionW' : 
+						if((Number(newPosRow) + (1 * NegOrPos) == Number(oldPosRow) && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (Number(newPosCol) + 1 == Number(oldPosCol) || Number(newPosCol) - 1 == Number(oldPosCol)) && newPosPlayer != player))) || (Number(newPosRow) + (2 * NegOrPos) == Number(oldPosRow) && (Number(oldPosRow == side)) && this.tabJS[Number(newPosRow)- (1*NegOrPos)][Number(newPosCol)].id == '' && newPos.id == '' && (newPosCol == oldPosCol)))
 						{
-							player = 1
-							if((Number(newPosRow) - 1 == Number(oldPosRow) && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (Number(newPosCol) + 1 == Number(oldPosCol) || Number(newPosCol) - 1 == Number(oldPosCol)) && newPosPlayer != player))) || (Number(newPosRow) - 2 == Number(oldPosRow) && (Number(oldPosRow == 1)) && this.tabJS[Number(newPosRow)-1][Number(newPosCol)].id == '' && newPos.id == '' && (newPosCol == oldPosCol)))
-							{	
-								this.turn = (this.turn == 1) ? 2 : 1
-								newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
-								newPos.id = oldPos.id
-								oldPos.id = ''
-							}
-							break;
+							this.turn = (this.turn == 1) ? 2 : 1
+							newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
+							newPos.id = oldPos.id
+							oldPos.id = ''
 						}
-						case 'pionB' : 
-						{
-							player = 2
-							if((Number(newPosRow) + 1 == Number(oldPosRow)&& ((newPosCol == oldPosCol && newPos.id == '' ) || (newPos.id !='' && (Number(newPosCol) + 1 == Number(oldPosCol) || Number(newPosCol) - 1 == Number(oldPosCol)) && newPosPlayer != player))) || (Number(newPosRow) + 2 == Number(oldPosRow) && (Number(oldPosRow == this.row - 2)) && this.tabJS[Number(newPosRow)+1][Number(newPosCol)].id == '' && newPos.id == '' && (newPosCol == oldPosCol)))
-							{
-								this.turn = (this.turn == 1) ? 2 : 1
-								newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
-								newPos.id = oldPos.id
-								oldPos.id = ''
-							}
-							break;
-						}
-							
+						break;
 					}
 
 				}
