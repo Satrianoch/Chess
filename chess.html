@@ -6,12 +6,22 @@
 	<style>
 		body{margin:0;padding:0}
 		table{margin: auto;margin-top: 50vh;transform: translateY(-50%)}
-		td{width:60px;height:60px;border:2px solid}
+		td{width:65px;height:65px;border:2px solid}
 		.black{background:#433}
 		.white{background:#FB1}
 		.select{border-color:red}
-		#pion[data-player='2']{background-image: url('pionB.png'); background-size: 100% 100%}
-		#pion[data-player='1']{background-image: url('pionW.png'); background-size: 100% 100%}
+		#pion[data-player='2']{background-image: url('img/pionB.png'); background-size: 100% 100%}
+		#pion[data-player='1']{background-image: url('img/pionW.png'); background-size: 100% 100%}
+		#tour[data-player='2']{background-image: url('img/tourB.png'); background-size: 100% 100%}
+		#tour[data-player='1']{background-image: url('img/tourW.png'); background-size: 100% 100%}
+		#fou[data-player='2']{background-image: url('img/fouB.png'); background-size: 100% 100%}
+		#fou[data-player='1']{background-image: url('img/fouW.png'); background-size: 100% 100%}
+		#cheval[data-player='2']{background-image: url('img/chevalB.png'); background-size: 100% 100%}
+		#cheval[data-player='1']{background-image: url('img/chevalW.png'); background-size: 100% 100%}
+		#reine[data-player='2']{background-image: url('img/reineB.png'); background-size: 100% 100%}
+		#reine[data-player='1']{background-image: url('img/reineW.png'); background-size: 100% 100%}
+		#roi[data-player='2']{background-image: url('img/roiB.png'); background-size: 100% 100%}
+		#roi[data-player='1']{background-image: url('img/roiW.png'); background-size: 100% 100%}
 	</style>
 </head>
 <body>
@@ -27,7 +37,7 @@
 				this.tabJS = []
 				this.tmp
 				this.turn = 1
-				this.pieces = ['pion']
+				this.pieces = ['pion','tour','cheval','fou','reine','roi','fou','cheval','tour']
 				
 				for(let i = this.row-1; i >= 0; i--)
 				{
@@ -55,13 +65,25 @@
 						
 						if(i == 1)
 						{
-							td.id = 'pion'
+							td.id = this.pieces[0]
 							td.dataset.player = 1
 						}
 						
 						if(i == this.row - 2)
 						{
-							td.id = 'pion'
+							td.id = this.pieces[0]
+							td.dataset.player = 2
+						}
+						
+						if(i == 0)
+						{
+							td.id = this.pieces[j+1]
+							td.dataset.player = 1
+						}
+						
+						if(i == this.row - 1)
+						{
+							td.id = this.pieces[j+1]
 							td.dataset.player = 2
 						}
 						
@@ -104,7 +126,7 @@
 				{
 					case 'pion' : 
 					{
-						if((Number(newPosRow) + (1 * NegOrPos) == Number(oldPosRow) && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (Number(newPosCol) + 1 == Number(oldPosCol) || Number(newPosCol) - 1 == Number(oldPosCol)) && newPosPlayer != player))) || (Number(newPosRow) + (2 * NegOrPos) == Number(oldPosRow) && (Number(oldPosRow == side)) && this.tabJS[Number(newPosRow)- (1*NegOrPos)][Number(newPosCol)].id == '' && newPos.id == '' && (newPosCol == oldPosCol)))
+						if((Number(newPosRow) + (1 * NegOrPos) == Number(oldPosRow) && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (Number(newPosCol) + 1 == Number(oldPosCol) || Number(newPosCol) - 1 == Number(oldPosCol)) && newPosPlayer != player))) || (Number(newPosRow) + (2 * NegOrPos) == Number(oldPosRow) && (Number(oldPosRow == side)) && this.tabJS[Number(newPosRow) + (1*NegOrPos)][Number(newPosCol)].id == '' && newPos.id == '' && (newPosCol == oldPosCol)))
 						{
 							this.turn = (this.turn == 1) ? 2 : 1
 							newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
