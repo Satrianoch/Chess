@@ -114,10 +114,10 @@
 			
 			deplace : function(oldPos, newPos)
 			{
-				const newPosRow = newPos.getAttribute('data-row')
-				const newPosCol = newPos.getAttribute('data-column')
-				const oldPosRow = oldPos.getAttribute('data-row')
-				const oldPosCol = oldPos.getAttribute('data-column')
+				const newPosRow = Number(newPos.getAttribute('data-row'))
+				const newPosCol = Number(newPos.getAttribute('data-column'))
+				const oldPosRow = Number(oldPos.getAttribute('data-row'))
+				const oldPosCol = Number(oldPos.getAttribute('data-column'))
 				const newPosPlayer = newPos.getAttribute('data-player')
 				const player = this.turn
 				const NegOrPos = this.turn == 1 ? -1 : 1
@@ -126,16 +126,19 @@
 				{
 					case 'pion' : 
 					{
-						if((Number(newPosRow) + (1 * NegOrPos) == Number(oldPosRow) && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (Number(newPosCol) + 1 == Number(oldPosCol) || Number(newPosCol) - 1 == Number(oldPosCol)) && newPosPlayer != player))) || (Number(newPosRow) + (2 * NegOrPos) == Number(oldPosRow) && (Number(oldPosRow == side)) && this.tabJS[Number(newPosRow) + (1*NegOrPos)][Number(newPosCol)].id == '' && newPos.id == '' && (newPosCol == oldPosCol)))
+						//SI LA NOUVELLE CASE EST A UNE LIGNE DEVANT LA SELECTION ET ((DANS LA MEME COLONNE ET VIDE) OU (DANS UNE COLONNE AVOISINANTE ET D'UNE PIECE ADVERSE)).
+						if((newPosRow + (1 * NegOrPos) == oldPosRow && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (newPosCol + 1 == oldPosCol || newPosCol - 1 == oldPosCol) && newPosPlayer != player)))
+						//OU SI LA NOUVELLE CASE EST A 2 LIGNE DEVANT LA SELECTION ET QUE LA SELECTION EST A LA POSITION INITIAL ET QUE LA NOUVELLE CASE EST VIDE ET QUE LA CASE ENTRE EST VIDE ET QUE ELLE EST DANS LA MEME COLONNE.
+							|| newPosRow + (2 * NegOrPos) == oldPosRow && (oldPosRow == side) && this.tabJS[newPosRow + (1*NegOrPos)][newPosCol].id == '' && newPos.id == '' && (newPosCol == oldPosCol))
 						{
 							this.turn = (this.turn == 1) ? 2 : 1
 							newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
+							oldPos.removeAttribute('data-player')
 							newPos.id = oldPos.id
-							oldPos.id = ''
+							oldPos.removeAttribute('id')
 						}
 						break;
 					}
-
 				}
 			}
 		}
