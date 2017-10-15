@@ -4,24 +4,24 @@
 	<meta charset="utf-8">
 	<title>Chess</title>
 	<style>
-		body{margin:0;padding:0}
+		body{margin:0;padding:0;background:#000}
 		table{margin: auto;margin-top: 50vh;transform: translateY(-50%)}
 		td{width:65px;height:65px;border:2px solid}
 		.black{background:#433}
 		.white{background:#FB1}
 		.select{border-color:red}
-		#pion[data-player='2']{background-image: url('img/pionB.png'); background-size: 100% 100%}
-		#pion[data-player='1']{background-image: url('img/pionW.png'); background-size: 100% 100%}
-		#tour[data-player='2']{background-image: url('img/tourB.png'); background-size: 100% 100%}
-		#tour[data-player='1']{background-image: url('img/tourW.png'); background-size: 100% 100%}
-		#fou[data-player='2']{background-image: url('img/fouB.png'); background-size: 100% 100%}
-		#fou[data-player='1']{background-image: url('img/fouW.png'); background-size: 100% 100%}
-		#cheval[data-player='2']{background-image: url('img/chevalB.png'); background-size: 100% 100%}
-		#cheval[data-player='1']{background-image: url('img/chevalW.png'); background-size: 100% 100%}
-		#reine[data-player='2']{background-image: url('img/reineB.png'); background-size: 100% 100%}
-		#reine[data-player='1']{background-image: url('img/reineW.png'); background-size: 100% 100%}
-		#roi[data-player='2']{background-image: url('img/roiB.png'); background-size: 100% 100%}
-		#roi[data-player='1']{background-image: url('img/roiW.png'); background-size: 100% 100%}
+		#pawn[data-player='2']{background-image: url('img/pawnB.png'); background-size: 100% 100%}
+		#pawn[data-player='1']{background-image: url('img/pawnW.png'); background-size: 100% 100%}
+		#rook[data-player='2']{background-image: url('img/rookB.png'); background-size: 100% 100%}
+		#rook[data-player='1']{background-image: url('img/rookW.png'); background-size: 100% 100%}
+		#bishop[data-player='2']{background-image: url('img/bishopB.png'); background-size: 100% 100%}
+		#bishop[data-player='1']{background-image: url('img/bishopW.png'); background-size: 100% 100%}
+		#knight[data-player='2']{background-image: url('img/knightB.png'); background-size: 100% 100%}
+		#knight[data-player='1']{background-image: url('img/knightW.png'); background-size: 100% 100%}
+		#queen[data-player='2']{background-image: url('img/queenB.png'); background-size: 100% 100%}
+		#queen[data-player='1']{background-image: url('img/queenW.png'); background-size: 100% 100%}
+		#king[data-player='2']{background-image: url('img/kingB.png'); background-size: 100% 100%}
+		#king[data-player='1']{background-image: url('img/kingW.png'); background-size: 100% 100%}
 	</style>
 </head>
 <body>
@@ -37,7 +37,7 @@
 				this.tabJS = []
 				this.tmp
 				this.turn = 1
-				this.pieces = ['pion','tour','cheval','fou','reine','roi','fou','cheval','tour']
+				this.pieces = ['pawn','rook','knight','bishop','queen','king','bishop','knight','rook']
 				
 				for(let i = this.row-1; i >= 0; i--)
 				{
@@ -124,12 +124,32 @@
 				const side = this.turn == 1 ? 1 : (this.row - 2)
 				switch(oldPos.id)
 				{
-					case 'pion' : 
+					case 'pawn' : 
 					{
-						//SI LA NOUVELLE CASE EST A UNE LIGNE DEVANT LA SELECTION ET ((DANS LA MEME COLONNE ET VIDE) OU (DANS UNE COLONNE AVOISINANTE ET D'UNE PIECE ADVERSE)).
+						//SI LA NOUVELLE CASE EST A UNE LIGNE DEVANT LA SELECTION ET ( (DANS LA MEME COLONNE ET VIDE) OU (DANS UNE COLONNE AVOISINANTE ET D'UNE PIECE ADVERSE) ).
 						if((newPosRow + (1 * NegOrPos) == oldPosRow && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (newPosCol + 1 == oldPosCol || newPosCol - 1 == oldPosCol) && newPosPlayer != player)))
 						//OU SI LA NOUVELLE CASE EST A 2 LIGNE DEVANT LA SELECTION ET QUE LA SELECTION EST A LA POSITION INITIAL ET QUE LA NOUVELLE CASE EST VIDE ET QUE LA CASE ENTRE EST VIDE ET QUE ELLE EST DANS LA MEME COLONNE.
 							|| newPosRow + (2 * NegOrPos) == oldPosRow && (oldPosRow == side) && this.tabJS[newPosRow + (1*NegOrPos)][newPosCol].id == '' && newPos.id == '' && (newPosCol == oldPosCol))
+						{
+							this.turn = (this.turn == 1) ? 2 : 1
+							newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
+							oldPos.removeAttribute('data-player')
+							newPos.id = oldPos.id
+							oldPos.removeAttribute('id')
+						}
+						break;
+					}
+					case 'knight' :
+					{
+						const posRowColDif = [1, -1, 3, -3]
+						//SI LA DIFFERENCE ENTRE LA SOMME DU X ET DU Y DE LA SELECTION ET DU X ET DU Y DE LA NOUVELLE CASE EST UN DES NOMBRES DU TABLEAU
+						if(posRowColDif.includes((oldPosCol + oldPosRow) - (newPosCol + newPosRow)) 
+						//ET QUE (LA COLONNE DE LA SELECTION EST DIFFERENTE DE CELLE DE LA NOUVELLE CASE ET LA LIGNE DE LA SELECTION EST DIFFERENTE DE CELLE DE LA NOUVELLE CASE) 
+							&& (oldPosCol !== newPosCol & oldPosRow !== newPosRow)
+						//ET QUE LA COLONNE DE LA SELECTION SOIT A PAS PLUS DE 2 DE DIFFERENCE AVEC LA COLONNE DE LA NOUVELLE CASE ET QUE LA LIGNE DE LA SELECTION SOIT A PAS PLUS DE 2 DE DIFFERENCE AVEC LA LIGNE DE LA NOUVELLE CASE
+							&& (oldPosCol - newPosCol < 3 && oldPosCol - newPosCol > -3) && (oldPosRow - newPosRow < 3 && oldPosRow - newPosRow > -3)
+						//ET QUE LA NOUVELLE CASE NE CONTIENNE PAS UNE PIECE ALLIE
+							&& newPosPlayer != player)
 						{
 							this.turn = (this.turn == 1) ? 2 : 1
 							newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
