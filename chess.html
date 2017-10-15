@@ -121,17 +121,17 @@
 				const oldPosCol = Number(oldPos.getAttribute('data-column'))
 				const newPosPlayer = newPos.getAttribute('data-player')
 				const player = this.turn
-				const NegOrPos = this.turn == 1 ? -1 : 1
-				const side = this.turn == 1 ? 1 : (this.row - 2)
 				let isAllowedMove = false
 				switch(oldPos.id)
 				{
 					case 'pawn' : 
 					{
+						const negOrPos = this.turn == 1 ? -1 : 1
+						const side = this.turn == 1 ? 1 : (this.row - 2)
 						//SI LA NOUVELLE CASE EST A UNE LIGNE DEVANT LA SELECTION ET ( (DANS LA MEME COLONNE ET VIDE) OU (DANS UNE COLONNE AVOISINANTE ET D'UNE PIECE ADVERSE) ).
-						if((newPosRow + (1 * NegOrPos) == oldPosRow && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (newPosCol + 1 == oldPosCol || newPosCol - 1 == oldPosCol) && newPosPlayer != player)))
+						if((newPosRow + (1 * negOrPos) == oldPosRow && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (newPosCol + 1 == oldPosCol || newPosCol - 1 == oldPosCol) && newPosPlayer != player)))
 						//OU SI LA NOUVELLE CASE EST A 2 LIGNE DEVANT LA SELECTION ET QUE LA SELECTION EST A LA POSITION INITIAL ET QUE LA NOUVELLE CASE EST VIDE ET QUE LA CASE ENTRE EST VIDE ET QUE ELLE EST DANS LA MEME COLONNE.
-							|| newPosRow + (2 * NegOrPos) == oldPosRow && (oldPosRow == side) && this.tabJS[newPosRow + (1*NegOrPos)][newPosCol].id == '' && newPos.id == '' && (newPosCol == oldPosCol))
+							|| newPosRow + (2 * negOrPos) == oldPosRow && (oldPosRow == side) && this.tabJS[newPosRow + (1*negOrPos)][newPosCol].id == '' && newPos.id == '' && (newPosCol == oldPosCol))
 						{
 							isAllowedMove = true
 						}
@@ -159,6 +159,39 @@
 						if((oldPosRow - newPosRow <= 1 && oldPosRow - newPosRow >= -1) && (oldPosCol - newPosCol <= 1 && oldPosCol - newPosCol >= -1) && newPosPlayer != player)
 						{
 							isAllowedMove = true
+						}
+						break;
+					}
+					case 'rook' :
+					{ //SI LA NOUVELLE CASE A LA MEME COLONNE QUE LA SELECTION OU BIEN LA MEME LIGNE ET QUE LA NOUVELLE CASE EST ALLIE
+						if((oldPosRow == newPosRow || oldPosCol == newPosCol) && newPosPlayer != player)
+						{//SI LA NOUVELLE CASE N'EST PAS SUR LA MEME LIGNE
+							if(oldPosRow != newPosRow)
+							{
+								let checkPosRow = oldPosRow
+								const negOrPos = oldPosRow > newPosRow ? -1 : 1
+								//CHECK DE CHACUNE DES CASES ENTRE LA SELECTION ET LA NOUVELLE. RETURN FALSE SI UNE D'ENTRE ELLE POSSEDE UN ID
+								while(checkPosRow != newPosRow)
+								{
+									checkPosRow += negOrPos
+									if(this.tabJS[checkPosRow][oldPosCol].id && checkPosRow != newPosRow)
+										return false
+								}
+							}//SINON LA NOUVELLE CASE N'EST PAS SUR LA MEME COLONNE
+							else
+							{
+								let checkPosCol = oldPosCol
+								const negOrPos = oldPosCol > newPosCol ? -1 : 1
+								//CHECK DE CHACUNE DES CASES ENTRE LA SELECTION ET LA NOUVELLE. RETURN FALSE SI UNE D'ENTRE ELLE POSSEDE UN ID
+								while(checkPosCol != newPosCol)
+								{
+									checkPosCol += negOrPos
+									if(this.tabJS[oldPosRow][checkPosCol].id && checkPosCol != newPosCol)
+										return false
+								}
+							}
+								isAllowedMove = true
+						
 						}
 						break;
 					}
