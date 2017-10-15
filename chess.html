@@ -96,7 +96,8 @@
 								{
 									if(chess.tmp.getAttribute('data-player') == chess.turn)
 										if(chess.pieces.includes(chess.tmp.id))
-											chess.deplace(chess.tmp, this)
+											if(chess.isAllowedMove(chess.tmp, this))
+												chess.deplace(chess.tmp, this)
 									chess.tmp = undefined
 									return
 								}
@@ -112,7 +113,7 @@
 				this.body.appendChild(this.tabHTML)
 			},
 			
-			deplace : function(oldPos, newPos)
+			isAllowedMove : function(oldPos, newPos)
 			{
 				const newPosRow = Number(newPos.getAttribute('data-row'))
 				const newPosCol = Number(newPos.getAttribute('data-column'))
@@ -122,6 +123,7 @@
 				const player = this.turn
 				const NegOrPos = this.turn == 1 ? -1 : 1
 				const side = this.turn == 1 ? 1 : (this.row - 2)
+				let isAllowedMove = false
 				switch(oldPos.id)
 				{
 					case 'pawn' : 
@@ -131,11 +133,7 @@
 						//OU SI LA NOUVELLE CASE EST A 2 LIGNE DEVANT LA SELECTION ET QUE LA SELECTION EST A LA POSITION INITIAL ET QUE LA NOUVELLE CASE EST VIDE ET QUE LA CASE ENTRE EST VIDE ET QUE ELLE EST DANS LA MEME COLONNE.
 							|| newPosRow + (2 * NegOrPos) == oldPosRow && (oldPosRow == side) && this.tabJS[newPosRow + (1*NegOrPos)][newPosCol].id == '' && newPos.id == '' && (newPosCol == oldPosCol))
 						{
-							this.turn = (this.turn == 1) ? 2 : 1
-							newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
-							oldPos.removeAttribute('data-player')
-							newPos.id = oldPos.id
-							oldPos.removeAttribute('id')
+							isAllowedMove = true
 						}
 						break;
 					}
@@ -151,27 +149,31 @@
 						//ET QUE LA NOUVELLE CASE NE CONTIENNE PAS UNE PIECE ALLIE
 							&& newPosPlayer != player)
 						{
-							this.turn = (this.turn == 1) ? 2 : 1
-							newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
-							oldPos.removeAttribute('data-player')
-							newPos.id = oldPos.id
-							oldPos.removeAttribute('id')
+							isAllowedMove = true
 						}
 						break;
 					}
 					case 'king' :
 					{
+						//SI LA NOUVELLE CASE EST A 1 CASE D'ECART MAX DE LA SELECTION ET QU'ELLE N'EST PAS ALLIE
 						if((oldPosRow - newPosRow <= 1 && oldPosRow - newPosRow >= -1) && (oldPosCol - newPosCol <= 1 && oldPosCol - newPosCol >= -1) && newPosPlayer != player)
 						{
-							this.turn = (this.turn == 1) ? 2 : 1
-							newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
-							oldPos.removeAttribute('data-player')
-							newPos.id = oldPos.id
-							oldPos.removeAttribute('id')
+							isAllowedMove = true
 						}
 						break;
 					}
 				}
+				
+				return isAllowedMove
+			},
+			
+			deplace : function(oldPos, newPos)
+			{
+				this.turn = (this.turn == 1) ? 2 : 1
+				newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
+				oldPos.removeAttribute('data-player')
+				newPos.id = oldPos.id
+				oldPos.removeAttribute('id')
 			}
 		}
 		
