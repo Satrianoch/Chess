@@ -147,9 +147,21 @@
 						//ET QUE (LA COLONNE DE LA SELECTION EST DIFFERENTE DE CELLE DE LA NOUVELLE CASE ET LA LIGNE DE LA SELECTION EST DIFFERENTE DE CELLE DE LA NOUVELLE CASE) 
 							&& (oldPosCol !== newPosCol & oldPosRow !== newPosRow)
 						//ET QUE LA COLONNE DE LA SELECTION SOIT A PAS PLUS DE 2 DE DIFFERENCE AVEC LA COLONNE DE LA NOUVELLE CASE ET QUE LA LIGNE DE LA SELECTION SOIT A PAS PLUS DE 2 DE DIFFERENCE AVEC LA LIGNE DE LA NOUVELLE CASE
-							&& (oldPosCol - newPosCol < 3 && oldPosCol - newPosCol > -3) && (oldPosRow - newPosRow < 3 && oldPosRow - newPosRow > -3)
+							&& (oldPosCol - newPosCol <= 2 && oldPosCol - newPosCol >= -2) && (oldPosRow - newPosRow <= 2 && oldPosRow - newPosRow >= -2)
 						//ET QUE LA NOUVELLE CASE NE CONTIENNE PAS UNE PIECE ALLIE
 							&& newPosPlayer != player)
+						{
+							this.turn = (this.turn == 1) ? 2 : 1
+							newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
+							oldPos.removeAttribute('data-player')
+							newPos.id = oldPos.id
+							oldPos.removeAttribute('id')
+						}
+						break;
+					}
+					case 'king' :
+					{
+						if((oldPosRow - newPosRow <= 1 && oldPosRow - newPosRow >= -1) && (oldPosCol - newPosCol <= 1 && oldPosCol - newPosCol >= -1) && newPosPlayer != player)
 						{
 							this.turn = (this.turn == 1) ? 2 : 1
 							newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
