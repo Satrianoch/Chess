@@ -10,17 +10,17 @@
 		.black{background:#433}
 		.white{background:#FB1}
 		.select{border-color:red}
-		#pawn[data-player='2']{background-image: url('img/pawnB.png'); background-size: 100% 100%}
+		#pawn[data-player='-1']{background-image: url('img/pawnB.png'); background-size: 100% 100%}
 		#pawn[data-player='1']{background-image: url('img/pawnW.png'); background-size: 100% 100%}
-		#rook[data-player='2']{background-image: url('img/rookB.png'); background-size: 100% 100%}
+		#rook[data-player='-1']{background-image: url('img/rookB.png'); background-size: 100% 100%}
 		#rook[data-player='1']{background-image: url('img/rookW.png'); background-size: 100% 100%}
-		#bishop[data-player='2']{background-image: url('img/bishopB.png'); background-size: 100% 100%}
+		#bishop[data-player='-1']{background-image: url('img/bishopB.png'); background-size: 100% 100%}
 		#bishop[data-player='1']{background-image: url('img/bishopW.png'); background-size: 100% 100%}
-		#knight[data-player='2']{background-image: url('img/knightB.png'); background-size: 100% 100%}
+		#knight[data-player='-1']{background-image: url('img/knightB.png'); background-size: 100% 100%}
 		#knight[data-player='1']{background-image: url('img/knightW.png'); background-size: 100% 100%}
-		#queen[data-player='2']{background-image: url('img/queenB.png'); background-size: 100% 100%}
+		#queen[data-player='-1']{background-image: url('img/queenB.png'); background-size: 100% 100%}
 		#queen[data-player='1']{background-image: url('img/queenW.png'); background-size: 100% 100%}
-		#king[data-player='2']{background-image: url('img/kingB.png'); background-size: 100% 100%}
+		#king[data-player='-1']{background-image: url('img/kingB.png'); background-size: 100% 100%}
 		#king[data-player='1']{background-image: url('img/kingW.png'); background-size: 100% 100%}
 	</style>
 </head>
@@ -72,7 +72,7 @@
 						if(i == this.row - 2)
 						{
 							td.id = this.pieces[0]
-							td.dataset.player = 2
+							td.dataset.player = -1
 						}
 						
 						if(i == 0)
@@ -84,7 +84,7 @@
 						if(i == this.row - 1)
 						{
 							td.id = this.pieces[j+1]
-							td.dataset.player = 2
+							td.dataset.player = -1
 						}
 						
 						td.addEventListener('click', function()
@@ -122,119 +122,119 @@
 				const newPosPlayer = newPos.getAttribute('data-player')
 				const player = this.turn
 				let isAllowedMove = false
-				switch(oldPos.id)
-				{
-					case 'pawn' : 
+				if(newPosPlayer != player)
+					switch(oldPos.id)
 					{
-						const sign = this.turn == 1 ? -1 : 1
-						const side = this.turn == 1 ? 1 : (this.row - 2)
-						//SI LA NOUVELLE CASE EST A UNE LIGNE DEVANT LA SELECTION ET ( (DANS LA MEME COLONNE ET VIDE) OU (DANS UNE COLONNE AVOISINANTE ET D'UNE PIECE ADVERSE) ).
-						if((newPosRow + (1 * sign) == oldPosRow && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (newPosCol + 1 == oldPosCol || newPosCol - 1 == oldPosCol) && newPosPlayer != player)))
-						//OU SI LA NOUVELLE CASE EST A 2 LIGNE DEVANT LA SELECTION ET QUE LA SELECTION EST A LA POSITION INITIAL ET QUE LA NOUVELLE CASE EST VIDE ET QUE LA CASE ENTRE EST VIDE ET QUE ELLE EST DANS LA MEME COLONNE.
-							|| newPosRow + (2 * sign) == oldPosRow && (oldPosRow == side) && this.tabJS[newPosRow + (1*sign)][newPosCol].id == '' && newPos.id == '' && (newPosCol == oldPosCol))
+						case 'pawn' : 
 						{
-							isAllowedMove = true
+							const sign = this.turn == 1 ? -1 : 1
+							const side = this.turn == 1 ? 1 : (this.row - 2)
+							//SI LA NOUVELLE CASE EST A UNE LIGNE DEVANT LA SELECTION ET ( (DANS LA MEME COLONNE ET VIDE) OU (DANS UNE COLONNE AVOISINANTE)).
+							if((newPosRow + (1 * sign) == oldPosRow && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (newPosCol + 1 == oldPosCol || newPosCol - 1 == oldPosCol))))
+							//OU SI LA NOUVELLE CASE EST A 2 LIGNE DEVANT LA SELECTION ET QUE LA SELECTION EST A LA POSITION INITIAL ET QUE LA NOUVELLE CASE EST VIDE ET QUE LA CASE ENTRE EST VIDE ET QUE ELLE EST DANS LA MEME COLONNE.
+								|| newPosRow + (2 * sign) == oldPosRow && (oldPosRow == side) && this.tabJS[newPosRow + (1*sign)][newPosCol].id == '' && newPos.id == '' && (newPosCol == oldPosCol))
+							{
+								isAllowedMove = true
+							}
+							break;
 						}
-						break;
-					}
-					case 'knight' :
-					{
-						const posRowColDif = [1, -1, 3, -3]
-						//SI LA DIFFERENCE ENTRE LA SOMME DU X ET DU Y DE LA SELECTION ET DU X ET DU Y DE LA NOUVELLE CASE EST UN DES NOMBRES DU TABLEAU
-						if(posRowColDif.includes((oldPosCol + oldPosRow) - (newPosCol + newPosRow)) 
-						//ET QUE (LA COLONNE DE LA SELECTION EST DIFFERENTE DE CELLE DE LA NOUVELLE CASE ET LA LIGNE DE LA SELECTION EST DIFFERENTE DE CELLE DE LA NOUVELLE CASE) 
-							&& (oldPosCol !== newPosCol & oldPosRow !== newPosRow)
-						//ET QUE LA COLONNE DE LA SELECTION SOIT A PAS PLUS DE 2 DE DIFFERENCE AVEC LA COLONNE DE LA NOUVELLE CASE ET QUE LA LIGNE DE LA SELECTION SOIT A PAS PLUS DE 2 DE DIFFERENCE AVEC LA LIGNE DE LA NOUVELLE CASE
-							&& (oldPosCol - newPosCol <= 2 && oldPosCol - newPosCol >= -2) && (oldPosRow - newPosRow <= 2 && oldPosRow - newPosRow >= -2)
-						//ET QUE LA NOUVELLE CASE NE CONTIENNE PAS UNE PIECE ALLIE
-							&& newPosPlayer != player)
+						case 'knight' :
 						{
-							isAllowedMove = true
+							const posRowColDif = [1, -1, 3, -3]
+							//SI LA DIFFERENCE ENTRE LA SOMME DU X ET DU Y DE LA SELECTION ET DU X ET DU Y DE LA NOUVELLE CASE EST UN DES NOMBRES DU TABLEAU
+							if(posRowColDif.includes((oldPosCol + oldPosRow) - (newPosCol + newPosRow)) 
+							//ET QUE (LA COLONNE DE LA SELECTION EST DIFFERENTE DE CELLE DE LA NOUVELLE CASE ET LA LIGNE DE LA SELECTION EST DIFFERENTE DE CELLE DE LA NOUVELLE CASE) 
+								&& (oldPosCol !== newPosCol & oldPosRow !== newPosRow)
+							//ET QUE LA COLONNE DE LA SELECTION SOIT A PAS PLUS DE 2 DE DIFFERENCE AVEC LA COLONNE DE LA NOUVELLE CASE ET QUE LA LIGNE DE LA SELECTION SOIT A PAS PLUS DE 2 DE DIFFERENCE AVEC LA LIGNE DE LA NOUVELLE CASE
+								&& (oldPosCol - newPosCol <= 2 && oldPosCol - newPosCol >= -2) && (oldPosRow - newPosRow <= 2 && oldPosRow - newPosRow >= -2))
+							{
+								isAllowedMove = true
+							}
+							break;
 						}
-						break;
-					}
-					case 'king' :
-					{
-						//SI LA NOUVELLE CASE EST A 1 CASE D'ECART MAX DE LA SELECTION ET QU'ELLE N'EST PAS ALLIE
-						if((oldPosRow - newPosRow <= 1 && oldPosRow - newPosRow >= -1) && (oldPosCol - newPosCol <= 1 && oldPosCol - newPosCol >= -1) && newPosPlayer != player)
+						case 'king' :
 						{
-							isAllowedMove = true
+							//SI LA NOUVELLE CASE EST A 1 CASE D'ECART MAX DE LA SELECTION
+							if((oldPosRow - newPosRow <= 1 && oldPosRow - newPosRow >= -1) && (oldPosCol - newPosCol <= 1 && oldPosCol - newPosCol >= -1))
+							{
+								isAllowedMove = true
+							}
+							break;
 						}
-						break;
-					}
-					case 'rook':
-					case 'queen':
-					{ //SI LA NOUVELLE CASE A LA MEME COLONNE QUE LA SELECTION OU BIEN LA MEME LIGNE ET QUE LA NOUVELLE CASE N'EST PAS ALLIE
-						if((oldPosRow == newPosRow || oldPosCol == newPosCol) && newPosPlayer != player)
-						{//SI LA NOUVELLE CASE N'EST PAS SUR LA MEME LIGNE
-							if(oldPosRow != newPosRow)
+						case 'rook':
+						case 'queen':
+						{ //SI LA NOUVELLE CASE A LA MEME COLONNE QUE LA SELECTION OU BIEN LA MEME LIGNE
+							if(oldPosRow == newPosRow || oldPosCol == newPosCol)
+							{//SI LA NOUVELLE CASE N'EST PAS SUR LA MEME LIGNE
+								if(oldPosRow != newPosRow)
+								{
+									let checkPosRow = oldPosRow
+									const sign = oldPosRow > newPosRow ? -1 : 1
+									//CHECK DE CHACUNE DES CASES ENTRE LA SELECTION ET LA NOUVELLE. RETURN FALSE SI UNE D'ENTRE ELLE POSSEDE UN ID
+									while(checkPosRow != newPosRow)
+									{
+										checkPosRow += sign
+										if(this.tabJS[checkPosRow][oldPosCol].id && checkPosRow != newPosRow)
+											return false
+									}
+								}//SINON LA NOUVELLE CASE N'EST PAS SUR LA MEME COLONNE
+								else
+								{
+									let checkPosCol = oldPosCol
+									const sign = oldPosCol > newPosCol ? -1 : 1
+									//CHECK DE CHACUNE DES CASES ENTRE LA SELECTION ET LA NOUVELLE. RETURN FALSE SI UNE D'ENTRE ELLE POSSEDE UN ID
+									while(checkPosCol != newPosCol)
+									{
+										checkPosCol += sign
+										if(this.tabJS[oldPosRow][checkPosCol].id && checkPosCol != newPosCol)
+											return false
+									}
+								}
+									isAllowedMove = true
+							}
+							if(oldPos.id != 'queen')
+								break;
+						}
+						case 'bishop':
+						case 'queen':
+						{//SI LA NOUVELLE CASE EST EN DIAGONAL OU ANTIDIAGONAL DE LA SELECTION
+							if(newPosRow + newPosCol == oldPosRow + oldPosCol || newPosRow - newPosCol == oldPosRow - oldPosCol)
 							{
 								let checkPosRow = oldPosRow
-								const sign = oldPosRow > newPosRow ? -1 : 1
-								//CHECK DE CHACUNE DES CASES ENTRE LA SELECTION ET LA NOUVELLE. RETURN FALSE SI UNE D'ENTRE ELLE POSSEDE UN ID
-								while(checkPosRow != newPosRow)
-								{
-									checkPosRow += sign
-									if(this.tabJS[checkPosRow][oldPosCol].id && checkPosRow != newPosRow)
-										return false
-								}
-							}//SINON LA NOUVELLE CASE N'EST PAS SUR LA MEME COLONNE
-							else
-							{
 								let checkPosCol = oldPosCol
-								const sign = oldPosCol > newPosCol ? -1 : 1
-								//CHECK DE CHACUNE DES CASES ENTRE LA SELECTION ET LA NOUVELLE. RETURN FALSE SI UNE D'ENTRE ELLE POSSEDE UN ID
-								while(checkPosCol != newPosCol)
-								{
-									checkPosCol += sign
-									if(this.tabJS[oldPosRow][checkPosCol].id && checkPosCol != newPosCol)
-										return false
-								}
+								let signRow
+								let signCol							
+								//SI LA LIGNE DE LA SELECTION EST PLUS GRANDE QUE CELLE DE LA NOUVELLE CASE ON DECREMENTE SINON ON INCREMENTE
+								if(oldPosRow > newPosRow)
+									signRow = -1
+								else
+									signRow = 1
+								//SI LA COLONNE DE LA SELECTION EST PLUS GRANDE QUE CELLE DE LA NOUVELLE CASE ON DECREMENTE SINON ON INCREMENTE
+								if(oldPosCol > newPosCol)
+									signCol = -1
+								else
+									signCol = 1
+									//CHECK DE CHACUNE DES CASES ENTRE LA SELECTION ET LA NOUVELLE. RETURN FALSE SI UNE D'ENTRE ELLE POSSEDE UN ID
+									//TESTER JUSTE LA LIGNE EST SUFFISANT CAR LA COLONNE EST INCREMENTE EN MEME TEMPS
+									while(checkPosRow != newPosRow)
+									{
+										checkPosRow += signRow
+										checkPosCol += signCol
+										if(this.tabJS[checkPosRow][checkPosCol].id && checkPosRow != newPosRow)
+											return false
+									}
+									isAllowedMove = true
 							}
-								isAllowedMove = true
-						}
-						if(oldPos.id != 'queen')
 							break;
-					}
-					case 'bishop':
-					case 'queen':
-					{//SI LA NOUVELLE CASE EST EN DIAGONAL OU ANTIDIAGONAL DE LA SELECTION ET QU'ELLE N'EST PAS ALLIE
-						if((newPosRow + newPosCol == oldPosRow + oldPosCol || newPosRow - newPosCol == oldPosRow - oldPosCol) && newPosPlayer != player)
-						{
-							let checkPosRow = oldPosRow
-							let checkPosCol = oldPosCol
-							let signRow
-							let signCol							//SI LA LIGNE DE LA SELECTION EST PLUS GRANDE QUE CELLE DE LA NOUVELLE CASE ON DECREMENTE SINON ON INCREMENTE
-							if(oldPosRow > newPosRow)
-								signRow = -1
-							else
-								signRow = 1
-							//SI LA COLONNE DE LA SELECTION EST PLUS GRANDE QUE CELLE DE LA NOUVELLE CASE ON DECREMENTE SINON ON INCREMENTE
-							if(oldPosCol > newPosCol)
-								signCol = -1
-							else
-								signCol = 1
-								//CHECK DE CHACUNE DES CASES ENTRE LA SELECTION ET LA NOUVELLE. RETURN FALSE SI UNE D'ENTRE ELLE POSSEDE UN ID
-								//TESTER JUSTE LA LIGNE EST SUFFISANT CAR LA COLONNE EST INCREMENTE EN MEME TEMPS
-								while(checkPosRow != newPosRow)
-								{
-									checkPosRow += signRow
-									checkPosCol += signCol
-									if(this.tabJS[checkPosRow][checkPosCol].id && checkPosRow != newPosRow)
-										return false
-								}
-								isAllowedMove = true
 						}
-						break;
 					}
-				}
 				
 				return isAllowedMove
 			},
 			
 			deplace : function(oldPos, newPos)
 			{
-				this.turn = (this.turn == 1) ? 2 : 1
+				this.turn = (this.turn == 1) ? -1 : 1
 				newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
 				oldPos.removeAttribute('data-player')
 				newPos.id = oldPos.id
