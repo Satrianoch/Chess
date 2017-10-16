@@ -126,12 +126,12 @@
 				{
 					case 'pawn' : 
 					{
-						const negOrPos = this.turn == 1 ? -1 : 1
+						const sign = this.turn == 1 ? -1 : 1
 						const side = this.turn == 1 ? 1 : (this.row - 2)
 						//SI LA NOUVELLE CASE EST A UNE LIGNE DEVANT LA SELECTION ET ( (DANS LA MEME COLONNE ET VIDE) OU (DANS UNE COLONNE AVOISINANTE ET D'UNE PIECE ADVERSE) ).
-						if((newPosRow + (1 * negOrPos) == oldPosRow && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (newPosCol + 1 == oldPosCol || newPosCol - 1 == oldPosCol) && newPosPlayer != player)))
+						if((newPosRow + (1 * sign) == oldPosRow && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (newPosCol + 1 == oldPosCol || newPosCol - 1 == oldPosCol) && newPosPlayer != player)))
 						//OU SI LA NOUVELLE CASE EST A 2 LIGNE DEVANT LA SELECTION ET QUE LA SELECTION EST A LA POSITION INITIAL ET QUE LA NOUVELLE CASE EST VIDE ET QUE LA CASE ENTRE EST VIDE ET QUE ELLE EST DANS LA MEME COLONNE.
-							|| newPosRow + (2 * negOrPos) == oldPosRow && (oldPosRow == side) && this.tabJS[newPosRow + (1*negOrPos)][newPosCol].id == '' && newPos.id == '' && (newPosCol == oldPosCol))
+							|| newPosRow + (2 * sign) == oldPosRow && (oldPosRow == side) && this.tabJS[newPosRow + (1*sign)][newPosCol].id == '' && newPos.id == '' && (newPosCol == oldPosCol))
 						{
 							isAllowedMove = true
 						}
@@ -162,18 +162,19 @@
 						}
 						break;
 					}
-					case 'rook' :
-					{ //SI LA NOUVELLE CASE A LA MEME COLONNE QUE LA SELECTION OU BIEN LA MEME LIGNE ET QUE LA NOUVELLE CASE EST ALLIE
+					case 'rook':
+					case 'queen':
+					{ //SI LA NOUVELLE CASE A LA MEME COLONNE QUE LA SELECTION OU BIEN LA MEME LIGNE ET QUE LA NOUVELLE CASE N'EST PAS ALLIE
 						if((oldPosRow == newPosRow || oldPosCol == newPosCol) && newPosPlayer != player)
 						{//SI LA NOUVELLE CASE N'EST PAS SUR LA MEME LIGNE
 							if(oldPosRow != newPosRow)
 							{
 								let checkPosRow = oldPosRow
-								const negOrPos = oldPosRow > newPosRow ? -1 : 1
+								const sign = oldPosRow > newPosRow ? -1 : 1
 								//CHECK DE CHACUNE DES CASES ENTRE LA SELECTION ET LA NOUVELLE. RETURN FALSE SI UNE D'ENTRE ELLE POSSEDE UN ID
 								while(checkPosRow != newPosRow)
 								{
-									checkPosRow += negOrPos
+									checkPosRow += sign
 									if(this.tabJS[checkPosRow][oldPosCol].id && checkPosRow != newPosRow)
 										return false
 								}
@@ -181,17 +182,48 @@
 							else
 							{
 								let checkPosCol = oldPosCol
-								const negOrPos = oldPosCol > newPosCol ? -1 : 1
+								const sign = oldPosCol > newPosCol ? -1 : 1
 								//CHECK DE CHACUNE DES CASES ENTRE LA SELECTION ET LA NOUVELLE. RETURN FALSE SI UNE D'ENTRE ELLE POSSEDE UN ID
 								while(checkPosCol != newPosCol)
 								{
-									checkPosCol += negOrPos
+									checkPosCol += sign
 									if(this.tabJS[oldPosRow][checkPosCol].id && checkPosCol != newPosCol)
 										return false
 								}
 							}
 								isAllowedMove = true
-						
+						}
+						if(oldPos.id != 'queen')
+							break;
+					}
+					case 'bishop':
+					case 'queen':
+					{//SI LA NOUVELLE CASE EST EN DIAGONAL OU ANTIDIAGONAL DE LA SELECTION ET QU'ELLE N'EST PAS ALLIE
+						if((newPosRow + newPosCol == oldPosRow + oldPosCol || newPosRow - newPosCol == oldPosRow - oldPosCol) && newPosPlayer != player)
+						{
+							let checkPosRow = oldPosRow
+							let checkPosCol = oldPosCol
+							let signRow
+							let signCol							//SI LA LIGNE DE LA SELECTION EST PLUS GRANDE QUE CELLE DE LA NOUVELLE CASE ON DECREMENTE SINON ON INCREMENTE
+							if(oldPosRow > newPosRow)
+								signRow = -1
+							else
+								signRow = 1
+							//SI LA COLONNE DE LA SELECTION EST PLUS GRANDE QUE CELLE DE LA NOUVELLE CASE ON DECREMENTE SINON ON INCREMENTE
+							if(oldPosCol > newPosCol)
+								signCol = -1
+							else
+								signCol = 1
+								//CHECK DE CHACUNE DES CASES ENTRE LA SELECTION ET LA NOUVELLE. RETURN FALSE SI UNE D'ENTRE ELLE POSSEDE UN ID
+								//TESTER JUSTE LA LIGNE EST SUFFISANT CAR LA COLONNE EST INCREMENTE EN MEME TEMPS
+								while(checkPosRow != newPosRow)
+								{
+									checkPosRow += signRow
+									checkPosCol += signCol
+									if(this.tabJS[checkPosRow][checkPosCol].id && checkPosRow != newPosRow)
+										return false
+								}
+								isAllowedMove = true
 						}
 						break;
 					}
