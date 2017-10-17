@@ -36,7 +36,7 @@
 				this.body = document.body
 				this.tabHTML = document.createElement('table')
 				this.tabJS = []
-				this.tmp
+				this.selection
 				this.turn = 1
 				this.pieces = ['pawn','rook','knight','bishop','queen','king','bishop','knight','rook']
 				
@@ -90,151 +90,30 @@
 						
 						td.addEventListener('click', function()
 						{
-							if(chess.tmp != undefined)
+							if(chess.selection == undefined)
+								chess.selection = this
+							
+							if(this.id && this.dataset.player == chess.turn)
 							{
-								for(let i = 0; i < chess.row; i++)
-									for(let j = 0; j < chess.col; j++)
-										chess.tabJS[i][j].classList.remove('highlight')
-								chess.tmp.classList.remove('select')
-								if(chess.tmp.id)
-								{
-									if(chess.tmp.getAttribute('data-player') == chess.turn)
-										if(chess.pieces.includes(chess.tmp.id))
-											if(chess.isAllowedMove(chess.tmp, this))
-												chess.deplace(chess.tmp, this)
-									chess.tmp = undefined
-									return
-								}
+								chess.clean()
+								chess.selection = this
+								chess.highlight(this)
+								this.classList.add('select')
 							}
-							chess.highlight(this)
-							this.classList.add('select')
-							chess.tmp = this
+
+							if(Array.from(this.classList).includes('highlight'))
+							{
+								chess.deplace(chess.selection, this)
+								chess.clean()
+							}	
 						})
+						
 						this.tabJS[i][j] = td
 						tr.appendChild(td)
 					}
 					this.tabHTML.appendChild(tr)
 				}
 				this.body.appendChild(this.tabHTML)
-			},
-			
-			isAllowedMove : function(oldPos, newPos)
-			{
-				const newPosRow = Number(newPos.getAttribute('data-row'))
-				const newPosCol = Number(newPos.getAttribute('data-column'))
-				const oldPosRow = Number(oldPos.getAttribute('data-row'))
-				const oldPosCol = Number(oldPos.getAttribute('data-column'))
-				const newPosPlayer = newPos.getAttribute('data-player')
-				const player = this.turn
-				let isAllowedMove = false
-				if(newPosPlayer != player)
-					switch(oldPos.id)
-					{
-						case 'pawn' : 
-						{
-							const sign = this.turn == 1 ? -1 : 1
-							const side = this.turn == 1 ? 1 : (this.row - 2)
-							//SI LA NOUVELLE CASE EST A UNE LIGNE DEVANT LA SELECTION ET ( (DANS LA MEME COLONNE ET VIDE) OU (DANS UNE COLONNE AVOISINANTE)).
-							if((newPosRow + (1 * sign) == oldPosRow && ((newPosCol == oldPosCol && newPos.id == '') || (newPos.id != '' && (newPosCol + 1 == oldPosCol || newPosCol - 1 == oldPosCol))))
-							//OU SI LA NOUVELLE CASE EST A 2 LIGNE DEVANT LA SELECTION ET QUE LA SELECTION EST A LA POSITION INITIAL ET QUE LA NOUVELLE CASE EST VIDE ET QUE LA CASE ENTRE EST VIDE ET QUE ELLE EST DANS LA MEME COLONNE.
-								|| newPosRow + (2 * sign) == oldPosRow && (oldPosRow == side) && this.tabJS[newPosRow + (1*sign)][newPosCol].id == '' && newPos.id == '' && (newPosCol == oldPosCol))
-							{
-								isAllowedMove = true
-							}
-							break;
-						}
-						case 'knight' :
-						{
-							const posRowColDif = [1, -1, 3, -3]
-							//SI LA DIFFERENCE ENTRE LA SOMME DU X ET DU Y DE LA SELECTION ET DU X ET DU Y DE LA NOUVELLE CASE EST UN DES NOMBRES DU TABLEAU
-							if(posRowColDif.includes((oldPosCol + oldPosRow) - (newPosCol + newPosRow)) 
-							//ET QUE (LA COLONNE DE LA SELECTION EST DIFFERENTE DE CELLE DE LA NOUVELLE CASE ET LA LIGNE DE LA SELECTION EST DIFFERENTE DE CELLE DE LA NOUVELLE CASE) 
-								&& (oldPosCol !== newPosCol & oldPosRow !== newPosRow)
-							//ET QUE LA COLONNE DE LA SELECTION SOIT A PAS PLUS DE 2 DE DIFFERENCE AVEC LA COLONNE DE LA NOUVELLE CASE ET QUE LA LIGNE DE LA SELECTION SOIT A PAS PLUS DE 2 DE DIFFERENCE AVEC LA LIGNE DE LA NOUVELLE CASE
-								&& (oldPosCol - newPosCol <= 2 && oldPosCol - newPosCol >= -2) && (oldPosRow - newPosRow <= 2 && oldPosRow - newPosRow >= -2))
-							{
-								isAllowedMove = true
-							}
-							break;
-						}
-						case 'king' :
-						{
-							//SI LA NOUVELLE CASE EST A 1 CASE D'ECART MAX DE LA SELECTION
-							if((oldPosRow - newPosRow <= 1 && oldPosRow - newPosRow >= -1) && (oldPosCol - newPosCol <= 1 && oldPosCol - newPosCol >= -1))
-							{
-								isAllowedMove = true
-							}
-							break;
-						}
-						case 'rook':
-						case 'queen':
-						{ //SI LA NOUVELLE CASE A LA MEME COLONNE QUE LA SELECTION OU BIEN LA MEME LIGNE
-							if(oldPosRow == newPosRow || oldPosCol == newPosCol)
-							{//SI LA NOUVELLE CASE N'EST PAS SUR LA MEME LIGNE
-								if(oldPosRow != newPosRow)
-								{
-									let checkPosRow = oldPosRow
-									const sign = oldPosRow > newPosRow ? -1 : 1
-									//CHECK DE CHACUNE DES CASES ENTRE LA SELECTION ET LA NOUVELLE. RETURN FALSE SI UNE D'ENTRE ELLE POSSEDE UN ID
-									while(checkPosRow != newPosRow)
-									{
-										checkPosRow += sign
-										if(this.tabJS[checkPosRow][oldPosCol].id && checkPosRow != newPosRow)
-											return false
-									}
-								}//SINON LA NOUVELLE CASE N'EST PAS SUR LA MEME COLONNE
-								else
-								{
-									let checkPosCol = oldPosCol
-									const sign = oldPosCol > newPosCol ? -1 : 1
-									//CHECK DE CHACUNE DES CASES ENTRE LA SELECTION ET LA NOUVELLE. RETURN FALSE SI UNE D'ENTRE ELLE POSSEDE UN ID
-									while(checkPosCol != newPosCol)
-									{
-										checkPosCol += sign
-										if(this.tabJS[oldPosRow][checkPosCol].id && checkPosCol != newPosCol)
-											return false
-									}
-								}
-									isAllowedMove = true
-							}
-							if(oldPos.id != 'queen')
-								break;
-						}
-						case 'bishop':
-						case 'queen':
-						{//SI LA NOUVELLE CASE EST EN DIAGONAL OU ANTIDIAGONAL DE LA SELECTION
-							if(newPosRow + newPosCol == oldPosRow + oldPosCol || newPosRow - newPosCol == oldPosRow - oldPosCol)
-							{
-								let checkPosRow = oldPosRow
-								let checkPosCol = oldPosCol
-								let signRow
-								let signCol							
-								//SI LA LIGNE DE LA SELECTION EST PLUS GRANDE QUE CELLE DE LA NOUVELLE CASE ON DECREMENTE SINON ON INCREMENTE
-								if(oldPosRow > newPosRow)
-									signRow = -1
-								else
-									signRow = 1
-								//SI LA COLONNE DE LA SELECTION EST PLUS GRANDE QUE CELLE DE LA NOUVELLE CASE ON DECREMENTE SINON ON INCREMENTE
-								if(oldPosCol > newPosCol)
-									signCol = -1
-								else
-									signCol = 1
-									//CHECK DE CHACUNE DES CASES ENTRE LA SELECTION ET LA NOUVELLE. RETURN FALSE SI UNE D'ENTRE ELLE POSSEDE UN ID
-									//TESTER JUSTE LA LIGNE EST SUFFISANT CAR LA COLONNE EST INCREMENTE EN MEME TEMPS
-									while(checkPosRow != newPosRow)
-									{
-										checkPosRow += signRow
-										checkPosCol += signCol
-										if(this.tabJS[checkPosRow][checkPosCol].id && checkPosRow != newPosRow)
-											return false
-									}
-									isAllowedMove = true
-							}
-							break;
-						}
-					}
-				
-				return isAllowedMove
 			},
 			
 			deplace : function(oldPos, newPos)
@@ -251,7 +130,6 @@
 				const selectedRow = Number(selected.getAttribute('data-row'))
 				const selectedCol = Number(selected.getAttribute('data-column'))
 				const selectedPlayer = selected.getAttribute('data-player')
-				if(selectedPlayer == this.turn)
 					switch(selected.id)
 					{
 						case 'pawn':
@@ -334,6 +212,14 @@
 									}
 						}
 					}
+			},
+			
+			clean : function()
+			{
+				this.selection.classList.remove('select')
+				for(let i = 0; i < this.row; i++)
+					for(let j = 0; j < this.col; j++)
+						this.tabJS[i][j].classList.remove('highlight')
 			}
 		}
 		
