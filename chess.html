@@ -280,9 +280,11 @@
 							{
 								checkRow = selectedRow+checkHighlight[i][0]
 								checkCol = selectedCol+checkHighlight[i][1]
+								//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET N'EST PAS ALLIE
 								if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != this.turn)
 									this.tabJS[checkRow][checkCol].classList.add('highlight')
 							}
+							break;
 						}
 						case 'knight':
 						{
@@ -294,9 +296,42 @@
 							{
 								checkRow = selectedRow+checkHighlight[i][0]
 								checkCol = selectedCol+checkHighlight[i][1]
+								//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET N'EST PAS ALLIE
 								if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != this.turn)
 									this.tabJS[checkRow][checkCol].classList.add('highlight')
 							}
+							break;
+						}
+						case 'queen':
+						case 'rook':
+						case 'bishop':
+						{
+							let checkHighlight
+							if(selected.id == 'queen')
+							//TABLEAU CONTENANT LES DEPLACEMENTS D'UNE CASE DANS TOUTES LES DIRECTIONS
+								checkHighlight = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]]
+							else if(selected.id == 'rook')
+							//TABLEAU CONTENANT LES DEPLACEMENTS D'UNE CASE EN HORIZONTAL ET VERTICAL
+								checkHighlight = [[1,0],[-1,0],[0,1],[0,-1]]
+							else if(selected.id == 'bishop')
+							//TABLEAU CONTENANT LES DEPLACEMENTS D'UNE CASE EN DIAGONAL
+								checkHighlight = [[1,1],[-1,1],[1,-1],[-1,-1]]
+							let checkRow
+							let checkCol
+							//POUR CHAQUE DIRECTIONS DU TABLEAU
+							for(let i = 0; i < checkHighlight.length; i++)
+							//PROGRESSE CASE PAR CASE TANT QU'ELLE NE DEBORDE PAR DU PLATEAU. SI UNE PIECE SE TROUVE SUR LA CASE, ARRETE LA BOUCLE
+								for(let j = 1; selectedRow+(checkHighlight[i][0]*j) <= this.row-1 && selectedRow+(checkHighlight[i][0]*j) >= 0 && selectedCol+(checkHighlight[i][1]*j) <= this.col-1 && selectedCol+(checkHighlight[i][1]*j) >= 0; j++)
+									{
+										checkRow = selectedRow+(checkHighlight[i][0]*j)
+										checkCol = selectedCol+(checkHighlight[i][1]*j)
+									//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET N'EST PAS ALLIE
+										if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != this.turn)
+											this.tabJS[checkRow][checkCol].classList.add('highlight')
+									//ARRETE LA BOUCLE SI UNE PIECE EST SUR CETTE CASE 
+										if(this.tabJS[checkRow][checkCol].id)
+											break;
+									}
 						}
 					}
 			}
