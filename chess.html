@@ -10,6 +10,7 @@
 		.black{background:#433}
 		.white{background:#FB1}
 		.select{border-color:red}
+		.highlight{background:#1CE}
 		#pawn[data-player='-1']{background-image: url('img/pawnB.png'); background-size: 100% 100%}
 		#pawn[data-player='1']{background-image: url('img/pawnW.png'); background-size: 100% 100%}
 		#rook[data-player='-1']{background-image: url('img/rookB.png'); background-size: 100% 100%}
@@ -91,6 +92,9 @@
 						{
 							if(chess.tmp != undefined)
 							{
+								for(let i = 0; i < chess.row; i++)
+									for(let j = 0; j < chess.col; j++)
+										chess.tabJS[i][j].classList.remove('highlight')
 								chess.tmp.classList.remove('select')
 								if(chess.tmp.id)
 								{
@@ -102,6 +106,7 @@
 									return
 								}
 							}
+							chess.highlight(this)
 							this.classList.add('select')
 							chess.tmp = this
 						})
@@ -239,6 +244,32 @@
 				oldPos.removeAttribute('data-player')
 				newPos.id = oldPos.id
 				oldPos.removeAttribute('id')
+			},
+			
+			highlight : function(selected)
+			{
+				const selectedRow = Number(selected.getAttribute('data-row'))
+				const selectedCol = Number(selected.getAttribute('data-column'))
+				const selectedPlayer = selected.getAttribute('data-player')
+				if(selectedPlayer == this.turn)
+					switch(selected.id)
+					{
+						case 'pawn':
+						{
+						//HIGHLIGHT DE LA CASE DEVANT LE PION SI LA CASE EXISTE ET SI ELLE EST VIDE
+							if((selectedRow+this.turn >= 0 || selectedRow+this.turn <= this.row) && !this.tabJS[selectedRow+this.turn][selectedCol].id)
+								this.tabJS[selectedRow+this.turn][selectedCol].classList.add('highlight')
+						//HIGHLIGHT DE LA DEUXIEME CASE DEVANT LE PION S'IL EST A L'EMPLACEMENT INITIAL ET QU'AUCUNE PIECE BLOQUE LE CHEMIN
+							if((this.turn == 1 && selectedRow == 1 || this.turn == -1 && selectedRow == this.row - 2) && !this.tabJS[selectedRow+this.turn][selectedCol].id && !this.tabJS[selectedRow+(this.turn*2)][selectedCol].id)
+								this.tabJS[selectedRow+(this.turn*2)][selectedCol].classList.add('highlight')
+						//HIGHLIGHT DE LA CASE EN DIAGONAL SI ELLE EXISTE ET EST PRISE PAR UNE PIECE ADVERSE
+							if((selectedRow+this.turn >= 0 || selectedRow+this.turn <= this.row) && (selectedCol+1 < this.col) && this.tabJS[selectedRow+this.turn][selectedCol+1].dataset.player == -this.turn)
+								this.tabJS[selectedRow+this.turn][selectedCol+1].classList.add('highlight')
+						//HIGHLIGHT DE LA CASE EN ANTIDIAGONAL SI ELLE EXISTE ET EST PRISE PAR UNE PIECE ADVERSE
+							if((selectedRow+this.turn >= 0 || selectedRow+this.turn <= this.row) && (selectedCol-1 >= 0) && this.tabJS[selectedRow+this.turn][selectedCol-1].dataset.player == -this.turn)
+								this.tabJS[selectedRow+this.turn][selectedCol-1].classList.add('highlight')
+						}
+					}
 			}
 		}
 		
