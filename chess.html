@@ -11,8 +11,8 @@
 		.white{background:#FB1}
 		.select{background:#23D}
 		.highlight{background:#1CE}
-		.check{background:#B00B1E}
-		.freeze{opacity: 0.66}
+		.check{background:#BA2B1E}
+		.freeze{background:#B00B1E;opacity: 0.33}
 		#pawn[data-player='-1']{background-image: url('img/pawnB.png'); background-size: 100% 100%}
 		#pawn[data-player='1']{background-image: url('img/pawnW.png'); background-size: 100% 100%}
 		#rook[data-player='-1']{background-image: url('img/rookB.png'); background-size: 100% 100%}
@@ -45,6 +45,8 @@
 			if(Array.from(this.classList).includes('highlight'))
 			{
 				chess.deplace(chess.selection, this)
+				chess.turn = (chess.turn == 1) ? -1 : 1
+				chess.check()
 				chess.clean()
 			}
 			//SI LA CASE EST VIDE ENLEVE LA SELECTION ACTUELLE
@@ -144,8 +146,6 @@
 				oldPos.removeAttribute('data-player')
 				newPos.id = oldPos.id
 				oldPos.removeAttribute('id')
-				this.turn = (this.turn == 1) ? -1 : 1
-				this.check()
 			},
 			
 			check : function()
@@ -154,6 +154,9 @@
 				const opposantPlayerPieces = Array.from(this.body.querySelectorAll(`[data-player='${-this.turn}']`))
 				const currentPlayerKing = this.body.querySelector(`#king[data-player='${this.turn}']`)
 				const opposantPlayerKing = this.body.querySelector(`#king[data-player='${-this.turn}']`)
+				
+				opposantPlayerPieces.map(x => x.classList.remove('freeze'))
+				
 				if(this.rowColInCheck != undefined)
 				{
 					this.tabJS[this.rowColInCheck[0]][this.rowColInCheck[1]].classList.remove('check')
@@ -169,21 +172,35 @@
 							currentPlayerKing.classList.add('check')
 							this.rowColInCheck = [currentPlayerKing.dataset.row, currentPlayerKing.dataset.column]
 							this.clean()
-							for(let j = 0; j < currentPlayerPieces.length; j++)
-							{
-								this.highlight(currentPlayerPieces[j])
-								if(Array.from(opposantPlayerPieces[i].classList).includes('highlight'))
-								{
-									currentPlayerPieces.map(x => x.classList.add('freeze'))
-									currentPlayerPieces[j].classList.remove('freeze')
-									alert(opposantPlayerPieces[i].id + " peut-être annihilé par " + currentPlayerPieces[j].id + " de la colonne " + currentPlayerPieces[j].dataset.column + ' et la ligne '+ currentPlayerPieces[j].dataset.row)
-									break
-								}
-							}
-							break
+							this.counter(currentPlayerPieces, opposantPlayerPieces[i])
+							this.clean()
+							this.flee(currentPlayerKing, opposantPlayerPieces[i])
 						}
 					}
 				}
+			},
+			
+			counter : function(currentPlayerPieces, threat)
+			{
+				for(let j = 0; j < currentPlayerPieces.length; j++)
+				{
+					this.highlight(currentPlayerPieces[j])
+					if(Array.from(threat.classList).includes('highlight'))
+						this.clean()
+					else
+						currentPlayerPieces[j].classList.add('freeze')
+				}	
+			},
+			
+			flee : function(king, threat)
+			{
+				king.classList.remove('freeze')
+				this.highlight(king)
+				for(let i = 0; i < this.row; i++)
+					for(let j = 0; j < this.col; j++)
+						if(Array.from(this.tabJS[i][j].classList).includes('highlight'))
+							return
+				king.classList.add('freeze')		
 			},
 					
 			highlight : function(selected, turnArg = this.turn)
