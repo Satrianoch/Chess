@@ -27,6 +27,26 @@
 </head>
 <body>
 	<script>
+		function clickOnTd()
+		{
+			if(chess.selection == undefined)
+				chess.selection = this
+
+			if(this.id && this.dataset.player == chess.turn)
+			{
+				chess.clean()
+				chess.selection = this
+				chess.highlight(this)
+				this.classList.add('select')
+			}
+
+			if(Array.from(this.classList).includes('highlight'))
+			{
+				chess.deplace(chess.selection, this)
+				chess.clean()
+			}
+		}
+		
 		const chess = 
 		{ 
 			init : function(row, col)
@@ -49,64 +69,10 @@
 						const td = document.createElement('td')
 						td.dataset.row = i
 						td.dataset.column = j
-						if((i+1) % 2 == 0)
-						{
-							if((j+1) % 2 == 0)
-								td.classList.add('white')
-							else
-								td.classList.add('black')
-						}
-						else
-						{
-							if((j+1) % 2 != 0)
-								td.classList.add('white')
-							else
-								td.classList.add('black')		
-						}
 						
-						if(i == 1)
-						{
-							td.id = this.pieces[0]
-							td.dataset.player = 1
-						}
-						
-						if(i == this.row - 2)
-						{
-							td.id = this.pieces[0]
-							td.dataset.player = -1
-						}
-						
-						if(i == 0)
-						{
-							td.id = this.pieces[j+1]
-							td.dataset.player = 1
-						}
-						
-						if(i == this.row - 1)
-						{
-							td.id = this.pieces[j+1]
-							td.dataset.player = -1
-						}
-						
-						td.addEventListener('click', function()
-						{
-							if(chess.selection == undefined)
-								chess.selection = this
-							
-							if(this.id && this.dataset.player == chess.turn)
-							{
-								chess.clean()
-								chess.selection = this
-								chess.highlight(this)
-								this.classList.add('select')
-							}
-
-							if(Array.from(this.classList).includes('highlight'))
-							{
-								chess.deplace(chess.selection, this)
-								chess.clean()
-							}	
-						})
+						this.paving(td, i, j)
+						this.initialPos(td, i, j)
+						td.addEventListener('click', clickOnTd)
 						
 						this.tabJS[i][j] = td
 						tr.appendChild(td)
@@ -114,6 +80,56 @@
 					this.tabHTML.appendChild(tr)
 				}
 				this.body.appendChild(this.tabHTML)
+			},
+			
+			paving : function(td, i, j)
+			{//MISE EN PLACE DE LA COULEUR DES CASES
+				if((i+1) % 2 == 0)
+				{
+					if((j+1) % 2 == 0)
+						td.classList.add('white')
+					else
+						td.classList.add('black')
+				}
+				else
+				{
+					if((j+1) % 2 != 0)
+						td.classList.add('white')
+					else
+						td.classList.add('black')		
+				}
+			},
+			
+			initialPos : function(td, i, j)
+			{//POSITIONNEMENT INITIAL DES PIECES
+				if(i == 1)
+				{
+					td.id = this.pieces[0]
+					td.dataset.player = 1
+				}		
+				if(i == this.row - 2)
+				{
+					td.id = this.pieces[0]
+					td.dataset.player = -1
+				}
+				if(i == 0)
+				{
+					td.id = this.pieces[j+1]
+					td.dataset.player = 1
+				}
+				if(i == this.row - 1)
+				{
+					td.id = this.pieces[j+1]
+					td.dataset.player = -1
+				}
+			},
+			
+			clean : function()
+			{
+				this.selection.classList.remove('select')
+				for(let i = 0; i < this.row; i++)
+					for(let j = 0; j < this.col; j++)
+						this.tabJS[i][j].classList.remove('highlight')
 			},
 			
 			deplace : function(oldPos, newPos)
@@ -212,14 +228,6 @@
 									}
 						}
 					}
-			},
-			
-			clean : function()
-			{
-				this.selection.classList.remove('select')
-				for(let i = 0; i < this.row; i++)
-					for(let j = 0; j < this.col; j++)
-						this.tabJS[i][j].classList.remove('highlight')
 			}
 		}
 		
