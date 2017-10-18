@@ -12,6 +12,7 @@
 		.select{background:#23D}
 		.highlight{background:#1CE}
 		.check{background:#B00B1E}
+		.freeze{opacity: 0.66}
 		#pawn[data-player='-1']{background-image: url('img/pawnB.png'); background-size: 100% 100%}
 		#pawn[data-player='1']{background-image: url('img/pawnW.png'); background-size: 100% 100%}
 		#rook[data-player='-1']{background-image: url('img/rookB.png'); background-size: 100% 100%}
@@ -62,7 +63,7 @@
 				this.tabJS = []
 				this.selection
 				this.turn = 1
-				this.pieces = ['pawn','rook','knight','bishop','queen','king','bishop','knight','rook']
+				this.pieces = ['pawn','rook','knight','bishop','king','queen','bishop','knight','rook']
 				this.rowColInCheck
 				
 				for(let i = this.row-1; i >= 0; i--)
@@ -149,7 +150,8 @@
 			
 			check : function()
 			{
-				const opposantPlayerPieces = this.body.querySelectorAll(`[data-player='${-this.turn}']`)
+				const currentPlayerPieces = Array.from(this.body.querySelectorAll(`[data-player='${this.turn}']`))
+				const opposantPlayerPieces = Array.from(this.body.querySelectorAll(`[data-player='${-this.turn}']`))
 				const currentPlayerKing = this.body.querySelector(`#king[data-player='${this.turn}']`)
 				const opposantPlayerKing = this.body.querySelector(`#king[data-player='${-this.turn}']`)
 				if(this.rowColInCheck != undefined)
@@ -166,6 +168,18 @@
 						{
 							currentPlayerKing.classList.add('check')
 							this.rowColInCheck = [currentPlayerKing.dataset.row, currentPlayerKing.dataset.column]
+							this.clean()
+							for(let j = 0; j < currentPlayerPieces.length; j++)
+							{
+								this.highlight(currentPlayerPieces[j])
+								if(Array.from(opposantPlayerPieces[i].classList).includes('highlight'))
+								{
+									currentPlayerPieces.map(x => x.classList.add('freeze'))
+									currentPlayerPieces[j].classList.remove('freeze')
+									alert(opposantPlayerPieces[i].id + " peut-être annihilé par " + currentPlayerPieces[j].id + " de la colonne " + currentPlayerPieces[j].dataset.column + ' et la ligne '+ currentPlayerPieces[j].dataset.row)
+									break
+								}
+							}
 							break
 						}
 					}
@@ -178,6 +192,8 @@
 				const selectedCol = Number(selected.getAttribute('data-column'))
 				const selectedPlayer = selected.getAttribute('data-player')
 				const turn = turnArg
+				//SI LA PIECE SELECTIONNEE N'EST PAS FREEZE
+				if(!Array.from(selected.classList).includes('freeze'))
 					switch(selected.id)
 					{
 						case 'pawn':
