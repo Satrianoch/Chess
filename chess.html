@@ -9,8 +9,9 @@
 		td{width:65px;height:65px;border:2px solid}
 		.black{background:#433}
 		.white{background:#FB1}
-		.select{border-color:red}
+		.select{background:#23D}
 		.highlight{background:#1CE}
+		.check{background:#B00B1E}
 		#pawn[data-player='-1']{background-image: url('img/pawnB.png'); background-size: 100% 100%}
 		#pawn[data-player='1']{background-image: url('img/pawnW.png'); background-size: 100% 100%}
 		#rook[data-player='-1']{background-image: url('img/rookB.png'); background-size: 100% 100%}
@@ -39,12 +40,15 @@
 				chess.highlight(this)
 				this.classList.add('select')
 			}
-
+				
 			if(Array.from(this.classList).includes('highlight'))
 			{
 				chess.deplace(chess.selection, this)
 				chess.clean()
 			}
+			//SI LA CASE EST VIDE ENLEVE LA SELECTION ACTUELLE
+			if(!this.id)
+				chess.clean()
 		}
 		
 		const chess = 
@@ -59,6 +63,7 @@
 				this.selection
 				this.turn = 1
 				this.pieces = ['pawn','rook','knight','bishop','queen','king','bishop','knight','rook']
+				this.rowColInCheck
 				
 				for(let i = this.row-1; i >= 0; i--)
 				{
@@ -134,34 +139,61 @@
 			
 			deplace : function(oldPos, newPos)
 			{
-				this.turn = (this.turn == 1) ? -1 : 1
 				newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
 				oldPos.removeAttribute('data-player')
 				newPos.id = oldPos.id
 				oldPos.removeAttribute('id')
+				this.turn = (this.turn == 1) ? -1 : 1
+				this.check()
 			},
 			
-			highlight : function(selected)
+			check : function()
+			{
+				const opposantPlayerPieces = this.body.querySelectorAll(`[data-player='${-this.turn}']`)
+				const currentPlayerKing = this.body.querySelector(`#king[data-player='${this.turn}']`)
+				const opposantPlayerKing = this.body.querySelector(`#king[data-player='${-this.turn}']`)
+				if(this.rowColInCheck != undefined)
+				{
+					this.tabJS[this.rowColInCheck[0]][this.rowColInCheck[1]].classList.remove('check')
+					this.rowColInCheck = undefined
+				}
+				else
+				{
+					for(let i = 0; i < opposantPlayerPieces.length; i++)
+					{
+						this.highlight(opposantPlayerPieces[i], -this.turn)
+						if(Array.from(currentPlayerKing.classList).includes('highlight'))
+						{
+							currentPlayerKing.classList.add('check')
+							this.rowColInCheck = [currentPlayerKing.dataset.row, currentPlayerKing.dataset.column]
+							break
+						}
+					}
+				}
+			},
+					
+			highlight : function(selected, turnArg = this.turn)
 			{
 				const selectedRow = Number(selected.getAttribute('data-row'))
 				const selectedCol = Number(selected.getAttribute('data-column'))
 				const selectedPlayer = selected.getAttribute('data-player')
+				const turn = turnArg
 					switch(selected.id)
 					{
 						case 'pawn':
 						{
 						//HIGHLIGHT DE LA CASE DEVANT LE PION SI LA CASE EXISTE ET SI ELLE EST VIDE
-							if((selectedRow+this.turn >= 0 || selectedRow+this.turn <= this.row) && !this.tabJS[selectedRow+this.turn][selectedCol].id)
-								this.tabJS[selectedRow+this.turn][selectedCol].classList.add('highlight')
+							if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && !this.tabJS[selectedRow+turn][selectedCol].id)
+								this.tabJS[selectedRow+turn][selectedCol].classList.add('highlight')
 						//HIGHLIGHT DE LA DEUXIEME CASE DEVANT LE PION S'IL EST A L'EMPLACEMENT INITIAL ET QU'AUCUNE PIECE BLOQUE LE CHEMIN
-							if((this.turn == 1 && selectedRow == 1 || this.turn == -1 && selectedRow == this.row - 2) && !this.tabJS[selectedRow+this.turn][selectedCol].id && !this.tabJS[selectedRow+(this.turn*2)][selectedCol].id)
-								this.tabJS[selectedRow+(this.turn*2)][selectedCol].classList.add('highlight')
+							if((turn == 1 && selectedRow == 1 || turn == -1 && selectedRow == this.row - 2) && !this.tabJS[selectedRow+turn][selectedCol].id && !this.tabJS[selectedRow+(turn*2)][selectedCol].id)
+								this.tabJS[selectedRow+(turn*2)][selectedCol].classList.add('highlight')
 						//HIGHLIGHT DE LA CASE EN DIAGONAL SI ELLE EXISTE ET EST PRISE PAR UNE PIECE ADVERSE
-							if((selectedRow+this.turn >= 0 || selectedRow+this.turn <= this.row) && (selectedCol+1 < this.col) && this.tabJS[selectedRow+this.turn][selectedCol+1].dataset.player == -this.turn)
-								this.tabJS[selectedRow+this.turn][selectedCol+1].classList.add('highlight')
+							if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && (selectedCol+1 < this.col) && this.tabJS[selectedRow+turn][selectedCol+1].dataset.player == -turn)
+								this.tabJS[selectedRow+turn][selectedCol+1].classList.add('highlight')
 						//HIGHLIGHT DE LA CASE EN ANTIDIAGONAL SI ELLE EXISTE ET EST PRISE PAR UNE PIECE ADVERSE
-							if((selectedRow+this.turn >= 0 || selectedRow+this.turn <= this.row) && (selectedCol-1 >= 0) && this.tabJS[selectedRow+this.turn][selectedCol-1].dataset.player == -this.turn)
-								this.tabJS[selectedRow+this.turn][selectedCol-1].classList.add('highlight')
+							if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && (selectedCol-1 >= 0) && this.tabJS[selectedRow+turn][selectedCol-1].dataset.player == -turn)
+								this.tabJS[selectedRow+turn][selectedCol-1].classList.add('highlight')
 							break;
 						}
 						case 'king':
@@ -175,7 +207,7 @@
 								checkRow = selectedRow+checkHighlight[i][0]
 								checkCol = selectedCol+checkHighlight[i][1]
 								//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET N'EST PAS ALLIE
-								if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != this.turn)
+								if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != turn)
 									this.tabJS[checkRow][checkCol].classList.add('highlight')
 							}
 							break;
@@ -191,7 +223,7 @@
 								checkRow = selectedRow+checkHighlight[i][0]
 								checkCol = selectedCol+checkHighlight[i][1]
 								//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET N'EST PAS ALLIE
-								if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != this.turn)
+								if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != turn)
 									this.tabJS[checkRow][checkCol].classList.add('highlight')
 							}
 							break;
@@ -220,7 +252,7 @@
 										checkRow = selectedRow+(checkHighlight[i][0]*j)
 										checkCol = selectedCol+(checkHighlight[i][1]*j)
 									//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET N'EST PAS ALLIE
-										if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != this.turn)
+										if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != turn)
 											this.tabJS[checkRow][checkCol].classList.add('highlight')
 									//ARRETE LA BOUCLE SI UNE PIECE EST SUR CETTE CASE 
 										if(this.tabJS[checkRow][checkCol].id)
