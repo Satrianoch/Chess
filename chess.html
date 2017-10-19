@@ -45,6 +45,13 @@
 			if(Array.from(this.classList).includes('highlight'))
 			{
 				chess.deplace(chess.selection, this)
+				//FIN PROVISOIRE
+				if(chess.body.querySelectorAll('#king').length < 2)
+				{
+					chess.clean()
+					alert('Les ' + (chess.turn == 1 ? 'blancs' : 'noirs') + ' ont gagnés.')
+					return
+				}
 				chess.turn = (chess.turn == 1) ? -1 : 1
 				chess.check()
 				chess.clean()
@@ -296,7 +303,7 @@
 			}
 		}
 		
-		chess.init(8,8)
+		chess.init(6,4)
 	</script>
 </body>
 </html>
