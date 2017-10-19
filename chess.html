@@ -179,7 +179,7 @@
 							currentPlayerKing.classList.add('check')
 							this.rowColInCheck = [currentPlayerKing.dataset.row, currentPlayerKing.dataset.column]
 							this.clean()
-							this.counter(currentPlayerPieces, opposantPlayerPieces[i])
+							this.defend(currentPlayerPieces, opposantPlayerPieces[i], currentPlayerKing)
 							this.clean()
 							this.flee(currentPlayerKing, opposantPlayerPieces[i])
 						}
@@ -187,15 +187,56 @@
 				}
 			},
 			
-			counter : function(currentPlayerPieces, threat)
+			defend : function(currentPlayerPieces, threat, king)
 			{
+				const kingRow = king.dataset.row
+				const kingCol = king.dataset.column
+				const threatRow = threat.dataset.row
+				const threatCol = threat.dataset.column
+				let tempRow = threatRow
+				let tempCol = threatCol
+				let signRow
+				let signCol
+				let threatToKing = [[threatRow, threatCol]]
+				
+				if(threatRow > kingRow)
+					signRow = -1
+				else
+					signRow = 1
+
+				if(threatCol > kingCol)
+					signCol = -1
+				else
+					signCol = 1
+				
+				const limitRow = parseInt(kingRow+(-signRow))
+				const limitCol = parseInt(kingCol+(-signCol))
+					
+				while(tempRow != limitRow && tempCol != limitCol)
+				{	
+					console.log(typeof(tempRow))
+					console.log(typeof(limitRow))
+					tempRow = Number(signRow) + Number(tempRow)
+					tempCol = Number(signCol) + Number(tempCol)
+					console.log(typeof(tempRow))
+					console.log(typeof(limitRow))
+					threatToKing.push([tempRow, tempCol])
+				}
+				
 				for(let j = 0; j < currentPlayerPieces.length; j++)
 				{
 					this.highlight(currentPlayerPieces[j])
-					if(Array.from(threat.classList).includes('highlight'))
-						this.clean()
-					else
-						currentPlayerPieces[j].classList.add('freeze')
+					for(let k = 0; k < threatToKing.length; k++)
+					{
+						if(Array.from(this.tabJS[threatToKing[k][0]][threatToKing[k][1]].classList).includes('highlight'))
+						{
+							currentPlayerPieces[j].classList.remove('freeze')
+							break
+						}
+						else
+							currentPlayerPieces[j].classList.add('freeze')
+					}
+					this.clean()
 				}	
 			},
 			
@@ -303,7 +344,7 @@
 			}
 		}
 		
-		chess.init(6,4)
+		chess.init(8,8)
 	</script>
 </body>
 </html>
