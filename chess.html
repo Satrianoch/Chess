@@ -307,8 +307,8 @@
 							let checkCol
 							for(let j = 0; j < opposantPlayerPieces.length; j++)
 							{
-								//AJOUT DU HIGHLIGHT DE TOUS LES ENNEMIS SAUF LE ROI
-								if(opposantPlayerPieces[j].id != 'king')
+								//AJOUT DU HIGHLIGHT DE TOUS LES ENNEMIS (PAS LE ROI SI LA FONCTION EST APPELEE PAR LE ROI ADVERSE ET QU'ON EST SUR LE ROI)
+								if(opposantPlayerPieces[j].id != 'king' || (opposantPlayerPieces[j].id == 'king' && !inception))
 									this.highlight(opposantPlayerPieces[j], -this.turn, true)
 							}
 							for(let i = 0; i < checkHighlight.length; i++)
@@ -318,9 +318,10 @@
 								//STOCKAGE DES CASES QUI NE DEBORDENT PAS DU PLATEAU, NE SONT PAS ALLIE ET NE SONT PAS DANS LE CHAMPS D'ATTAQUE D'UN ENNEMI
 								if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != turn && !Array.from(this.tabJS[checkRow][checkCol].classList).includes('highlight'))
 									toHighlight.push(this.tabJS[checkRow][checkCol])
-									//CLEAN DU HIGHLIGHT ENNEMI ET AJOUT DU CELUI DU ROI
+									//CLEAN DU HIGHLIGHT DE TOUS LES HIGHLIGHTS SI LA FONCTION N'EST PAS APPELEE PAR LE ROI ADVERSE ET AJOUT DU CELUI DU ROI
 							}
-							this.clean()
+							if(!inception)
+								this.clean()
 							toHighlight.map(x => x.classList.add('highlight'))
 							return
 						}
