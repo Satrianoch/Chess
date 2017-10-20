@@ -180,9 +180,18 @@
 							this.rowColInCheck = [currentPlayerKing.dataset.row, currentPlayerKing.dataset.column]
 							this.clean()
 							this.saveTheKing(currentPlayerPieces, opposantPlayerPieces[i], currentPlayerKing)
+							this.checkMate(currentPlayerPieces)
 						}
 					}
 				}
+			},
+			
+			checkMate : function(currentPlayerPieces)
+			{
+				for(let i = 0; i < currentPlayerPieces.length; i++)
+					if(!Array.from(currentPlayerPieces[i].classList).includes('freeze'))
+						return
+				alert('ECHEC ET MATH.')
 			},
 			
 			saveTheKing : function(currentPlayerPieces, threat, king)
