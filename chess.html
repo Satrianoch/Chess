@@ -269,7 +269,7 @@
 				}	
 			},
 					
-			highlight : function(selected, turnArg = this.turn)
+			highlight : function(selected, turnArg = this.turn, inception = false)
 			{
 				const selectedRow = Number(selected.getAttribute('data-row'))
 				const selectedCol = Number(selected.getAttribute('data-column'))
@@ -283,17 +283,19 @@
 						case 'pawn':
 						{
 						//HIGHLIGHT DE LA CASE DEVANT LE PION SI LA CASE EXISTE ET SI ELLE EST VIDE
-							if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && !this.tabJS[selectedRow+turn][selectedCol].id)
+							if(((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && !this.tabJS[selectedRow+turn][selectedCol].id) && !inception)
 								this.tabJS[selectedRow+turn][selectedCol].classList.add('highlight')
 						//HIGHLIGHT DE LA DEUXIEME CASE DEVANT LE PION S'IL EST A L'EMPLACEMENT INITIAL ET QU'AUCUNE PIECE BLOQUE LE CHEMIN
-							if((turn == 1 && selectedRow == 1 || turn == -1 && selectedRow == this.row - 2) && !this.tabJS[selectedRow+turn][selectedCol].id && !this.tabJS[selectedRow+(turn*2)][selectedCol].id)
+							if(((turn == 1 && selectedRow == 1 || turn == -1 && selectedRow == this.row - 2) && !this.tabJS[selectedRow+turn][selectedCol].id && !this.tabJS[selectedRow+(turn*2)][selectedCol].id) && !inception)
 								this.tabJS[selectedRow+(turn*2)][selectedCol].classList.add('highlight')
 						//HIGHLIGHT DE LA CASE EN DIAGONAL SI ELLE EXISTE ET EST PRISE PAR UNE PIECE ADVERSE
-							if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && (selectedCol+1 < this.col) && this.tabJS[selectedRow+turn][selectedCol+1].dataset.player == -turn)
-								this.tabJS[selectedRow+turn][selectedCol+1].classList.add('highlight')
+							if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && (selectedCol+1 < this.col))
+								if(inception || this.tabJS[selectedRow+turn][selectedCol+1].dataset.player == -turn)
+									this.tabJS[selectedRow+turn][selectedCol+1].classList.add('highlight')
 						//HIGHLIGHT DE LA CASE EN ANTIDIAGONAL SI ELLE EXISTE ET EST PRISE PAR UNE PIECE ADVERSE
-							if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && (selectedCol-1 >= 0) && this.tabJS[selectedRow+turn][selectedCol-1].dataset.player == -turn)
-								this.tabJS[selectedRow+turn][selectedCol-1].classList.add('highlight')
+							if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && (selectedCol-1 >= 0))
+								if(inception || this.tabJS[selectedRow+turn][selectedCol-1].dataset.player == -turn)
+									this.tabJS[selectedRow+turn][selectedCol-1].classList.add('highlight')
 							break;
 						}
 						case 'king':
@@ -307,16 +309,16 @@
 							{
 								//AJOUT DU HIGHLIGHT DE TOUS LES ENNEMIS SAUF LE ROI
 								if(opposantPlayerPieces[j].id != 'king')
-									this.highlight(opposantPlayerPieces[j], -this.turn)
-								for(let i = 0; i < checkHighlight.length; i++)
-								{
-									checkRow = selectedRow+checkHighlight[i][0]
-									checkCol = selectedCol+checkHighlight[i][1]
-									//STOCKAGE DES CASES QUI NE DEBORDENT PAS DU PLATEAU, NE SONT PAS ALLIE ET NE SONT PAS DANS LE CHAMPS D'ATTAQUE D'UN ENNEMI
-									if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != turn && !Array.from(this.tabJS[checkRow][checkCol].classList).includes('highlight'))
-										toHighlight.push(this.tabJS[checkRow][checkCol])
-										//CLEAN DU HIGHLIGHT ENNEMI ET AJOUT DU CELUI DU ROI
-								}
+									this.highlight(opposantPlayerPieces[j], -this.turn, true)
+							}
+							for(let i = 0; i < checkHighlight.length; i++)
+							{
+								checkRow = selectedRow+checkHighlight[i][0]
+								checkCol = selectedCol+checkHighlight[i][1]
+								//STOCKAGE DES CASES QUI NE DEBORDENT PAS DU PLATEAU, NE SONT PAS ALLIE ET NE SONT PAS DANS LE CHAMPS D'ATTAQUE D'UN ENNEMI
+								if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != turn && !Array.from(this.tabJS[checkRow][checkCol].classList).includes('highlight'))
+									toHighlight.push(this.tabJS[checkRow][checkCol])
+									//CLEAN DU HIGHLIGHT ENNEMI ET AJOUT DU CELUI DU ROI
 							}
 							this.clean()
 							toHighlight.map(x => x.classList.add('highlight'))
