@@ -45,7 +45,7 @@
 			if(Array.from(this.classList).includes('highlight'))
 			{
 				chess.deplace(chess.selection, this)
-				//FIN PROVISOIRE
+				//FIN PROVISOIRE LORSQUE LE ROI EST MORT
 				if(chess.body.querySelectorAll('#king').length < 2)
 				{
 					chess.clean()
@@ -179,15 +179,13 @@
 							currentPlayerKing.classList.add('check')
 							this.rowColInCheck = [currentPlayerKing.dataset.row, currentPlayerKing.dataset.column]
 							this.clean()
-							this.defend(currentPlayerPieces, opposantPlayerPieces[i], currentPlayerKing)
-							this.clean()
-							this.flee(currentPlayerKing, opposantPlayerPieces[i])
+							this.saveTheKing(currentPlayerPieces, opposantPlayerPieces[i], currentPlayerKing)
 						}
 					}
 				}
 			},
 			
-			defend : function(currentPlayerPieces, threat, king)
+			saveTheKing : function(currentPlayerPieces, threat, king)
 			{
 				const kingRow = king.dataset.row
 				const kingCol = king.dataset.column
@@ -201,54 +199,66 @@
 				
 				if(threatRow > kingRow)
 					signRow = -1
-				else
+				else if (threatRow < kingRow)
 					signRow = 1
+				else
+					signRow = 0
 
 				if(threatCol > kingCol)
 					signCol = -1
-				else
+				else if (threatCol < kingCol)
 					signCol = 1
+				else
+					signCol = 0
 				
-				const limitRow = parseInt(kingRow+(-signRow))
-				const limitCol = parseInt(kingCol+(-signCol))
-					
-				while(tempRow != limitRow && tempCol != limitCol)
+				
+				const limitRow = parseInt(kingRow) + parseInt(-signRow)
+				const limitCol = parseInt(kingCol) + parseInt(-signCol)
+				tempRow = parseInt(tempRow)
+				tempCol = parseInt(tempCol)
+				//STOCKAGE DES CASES ENTRE LA MENACE(COMPRIS) ET LE ROI(NON COMPRIS) DANS L'ARRAY threatToKing
+				while(tempRow != limitRow || tempCol != limitCol)
 				{	
-					console.log(typeof(tempRow))
-					console.log(typeof(limitRow))
-					tempRow = Number(signRow) + Number(tempRow)
-					tempCol = Number(signCol) + Number(tempCol)
-					console.log(typeof(tempRow))
-					console.log(typeof(limitRow))
+					if(tempRow != limitRow)
+						tempRow = parseInt(Number(signRow) + Number(tempRow))
+					if(tempCol != limitCol)
+						tempCol = parseInt(Number(signCol) + Number(tempCol))
 					threatToKing.push([tempRow, tempCol])
 				}
 				
 				for(let j = 0; j < currentPlayerPieces.length; j++)
 				{
 					this.highlight(currentPlayerPieces[j])
-					for(let k = 0; k < threatToKing.length; k++)
+					if(currentPlayerPieces[j].id != 'king')
 					{
-						if(Array.from(this.tabJS[threatToKing[k][0]][threatToKing[k][1]].classList).includes('highlight'))
+						for(let k = 0; k < threatToKing.length; k++)
 						{
-							currentPlayerPieces[j].classList.remove('freeze')
-							break
+							if(Array.from(this.tabJS[threatToKing[k][0]][threatToKing[k][1]].classList).includes('highlight'))
+							{
+								currentPlayerPieces[j].classList.remove('freeze')
+								break
+							}
+							else
+								currentPlayerPieces[j].classList.add('freeze')
 						}
-						else
-							currentPlayerPieces[j].classList.add('freeze')
-					}
 					this.clean()
+					}
+					else
+					{
+						currentPlayerPieces[j].classList.add('freeze')
+						for(let a = 0; a < this.row; a++)
+							for(let b = 0; b < this.col; b++)
+							{
+								console.log(this.tabJS[a][b].dataset.row + threatToKing[threatToKing.length - 1][0] + this.tabJS[a][b].dataset.column + threatToKing[threatToKing.length - 1][1])
+								if(Array.from(this.tabJS[a][b].classList).includes('highlight') && (this.tabJS[a][b].dataset.row != threatToKing[threatToKing.length - 1][0] || this.tabJS[a][b].dataset.column != threatToKing[threatToKing.length - 1][1]))
+								{
+									currentPlayerPieces[j].classList.remove('freeze')
+									break
+								}
+							}
+						this.clean()
+					}
 				}	
-			},
-			
-			flee : function(king, threat)
-			{
-				king.classList.remove('freeze')
-				this.highlight(king)
-				for(let i = 0; i < this.row; i++)
-					for(let j = 0; j < this.col; j++)
-						if(Array.from(this.tabJS[i][j].classList).includes('highlight'))
-							return
-				king.classList.add('freeze')		
 			},
 					
 			highlight : function(selected, turnArg = this.turn)
