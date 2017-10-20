@@ -282,17 +282,17 @@
 					{
 						case 'pawn':
 						{
-						//HIGHLIGHT DE LA CASE DEVANT LE PION SI LA CASE EXISTE ET SI ELLE EST VIDE
+						//HIGHLIGHT DE LA CASE DEVANT LE PION (SI LA CASE EXISTE ET SI ELLE EST VIDE) ET QUE LA FONCTION N'EST PAS APPELEE PAR LE ROI
 							if(((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && !this.tabJS[selectedRow+turn][selectedCol].id) && !inception)
 								this.tabJS[selectedRow+turn][selectedCol].classList.add('highlight')
-						//HIGHLIGHT DE LA DEUXIEME CASE DEVANT LE PION S'IL EST A L'EMPLACEMENT INITIAL ET QU'AUCUNE PIECE BLOQUE LE CHEMIN
+						//HIGHLIGHT DE LA DEUXIEME CASE DEVANT LE PION (S'IL EST A L'EMPLACEMENT INITIAL ET QU'AUCUNE PIECE BLOQUE LE CHEMIN) ET QUE LA FONCTION N'EST PAS APPELEE PAR LE ROI
 							if(((turn == 1 && selectedRow == 1 || turn == -1 && selectedRow == this.row - 2) && !this.tabJS[selectedRow+turn][selectedCol].id && !this.tabJS[selectedRow+(turn*2)][selectedCol].id) && !inception)
 								this.tabJS[selectedRow+(turn*2)][selectedCol].classList.add('highlight')
-						//HIGHLIGHT DE LA CASE EN DIAGONAL SI ELLE EXISTE ET EST PRISE PAR UNE PIECE ADVERSE
+						//HIGHLIGHT DE LA CASE EN DIAGONAL SI ELLE EXISTE ET (EST PRISE PAR UNE PIECE ADVERSE OU QUE LA FONCTION EST APPELEE PAR LE ROI)
 							if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && (selectedCol+1 < this.col))
 								if(inception || this.tabJS[selectedRow+turn][selectedCol+1].dataset.player == -turn)
 									this.tabJS[selectedRow+turn][selectedCol+1].classList.add('highlight')
-						//HIGHLIGHT DE LA CASE EN ANTIDIAGONAL SI ELLE EXISTE ET EST PRISE PAR UNE PIECE ADVERSE
+						//HIGHLIGHT DE LA CASE EN ANTIDIAGONAL SI ELLE EXISTE ET (EST PRISE PAR UNE PIECE ADVERSE OU QUE LA FONCTION EST APPELEE PAR LE ROI)
 							if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && (selectedCol-1 >= 0))
 								if(inception || this.tabJS[selectedRow+turn][selectedCol-1].dataset.player == -turn)
 									this.tabJS[selectedRow+turn][selectedCol-1].classList.add('highlight')
@@ -334,8 +334,8 @@
 							{
 								checkRow = selectedRow+checkHighlight[i][0]
 								checkCol = selectedCol+checkHighlight[i][1]
-								//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET N'EST PAS ALLIE
-								if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != turn)
+								//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET (N'EST PAS ALLIE OU QUE LA FONCTION EST APPELEE PAR LE ROI) 
+								if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && (this.tabJS[checkRow][checkCol].dataset.player != turn || inception))
 									this.tabJS[checkRow][checkCol].classList.add('highlight')
 							}
 							break;
@@ -363,8 +363,8 @@
 									{
 										checkRow = selectedRow+(checkHighlight[i][0]*j)
 										checkCol = selectedCol+(checkHighlight[i][1]*j)
-									//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET N'EST PAS ALLIE
-										if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != turn)
+									//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET (N'EST PAS ALLIE OU QUE LA FONCTION EST APPELEE PAR LE ROI)
+										if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && (this.tabJS[checkRow][checkCol].dataset.player != turn || inception))
 											this.tabJS[checkRow][checkCol].classList.add('highlight')
 									//ARRETE LA BOUCLE SI UNE PIECE EST SUR CETTE CASE 
 										if(this.tabJS[checkRow][checkCol].id)
