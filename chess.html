@@ -31,9 +31,10 @@
 	<script>
 		function clickOnTd()
 		{
+			//SELECTION D'UNE CASE AU PREMIER TOUR SEULEMENT
 			if(chess.selection == undefined)
 				chess.selection = this
-
+			//SELECTION D'UNE CASE SEULEMENT SI ELLE EST OCCUPEE PAR UN ALLIE
 			if(this.id && this.dataset.player == chess.turn)
 			{
 				chess.clean()
@@ -41,7 +42,7 @@
 				chess.highlight(this)
 				this.classList.add('select')
 			}
-				
+			//SI LA CASE SELECTIONNE EST HIGHLIGHT : SE DEPLACER, CHANGER LE TOUR ET ANALYSER SI ECHEC
 			if(Array.from(this.classList).includes('highlight'))
 			{
 				chess.deplace(chess.selection, this)
@@ -257,14 +258,12 @@
 						currentPlayerPieces[j].classList.add('freeze')
 						for(let a = 0; a < this.row; a++)
 							for(let b = 0; b < this.col; b++)
-							{
-								console.log(this.tabJS[a][b].dataset.row + threatToKing[threatToKing.length - 1][0] + this.tabJS[a][b].dataset.column + threatToKing[threatToKing.length - 1][1])
-								if(Array.from(this.tabJS[a][b].classList).includes('highlight') && (this.tabJS[a][b].dataset.row != threatToKing[threatToKing.length - 1][0] || this.tabJS[a][b].dataset.column != threatToKing[threatToKing.length - 1][1]))
+								if(Array.from(this.tabJS[a][b].classList).includes('highlight'))
 								{
 									currentPlayerPieces[j].classList.remove('freeze')
-									break
+									a = this.row
+									b = this.col
 								}
-							}
 						this.clean()
 					}
 				}	
@@ -275,6 +274,7 @@
 				const selectedRow = Number(selected.getAttribute('data-row'))
 				const selectedCol = Number(selected.getAttribute('data-column'))
 				const selectedPlayer = selected.getAttribute('data-player')
+				const opposantPlayerPieces = Array.from(this.body.querySelectorAll(`[data-player='${-this.turn}']`))
 				const turn = turnArg
 				//SI LA PIECE SELECTIONNEE N'EST PAS FREEZE
 				if(!Array.from(selected.classList).includes('freeze'))
@@ -300,17 +300,27 @@
 						{
 						//TABLEAU CONTENANT LES DEPLACEMENTS D'UNE CASE DANS TOUTES LES DIRECTIONS
 							const checkHighlight = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]]
+							let toHighlight = []
 							let checkRow
 							let checkCol
-							for(let i = 0; i < checkHighlight.length; i++)
+							for(let j = 0; j < opposantPlayerPieces.length; j++)
 							{
-								checkRow = selectedRow+checkHighlight[i][0]
-								checkCol = selectedCol+checkHighlight[i][1]
-								//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET N'EST PAS ALLIE
-								if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != turn)
-									this.tabJS[checkRow][checkCol].classList.add('highlight')
+								//AJOUT DU HIGHLIGHT DE TOUS LES ENNEMIS SAUF LE ROI
+								if(opposantPlayerPieces[j].id != 'king')
+									this.highlight(opposantPlayerPieces[j], -this.turn)
+								for(let i = 0; i < checkHighlight.length; i++)
+								{
+									checkRow = selectedRow+checkHighlight[i][0]
+									checkCol = selectedCol+checkHighlight[i][1]
+									//STOCKAGE DES CASES QUI NE DEBORDENT PAS DU PLATEAU, NE SONT PAS ALLIE ET NE SONT PAS DANS LE CHAMPS D'ATTAQUE D'UN ENNEMI
+									if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != turn && !Array.from(this.tabJS[checkRow][checkCol].classList).includes('highlight'))
+										toHighlight.push(this.tabJS[checkRow][checkCol])
+										//CLEAN DU HIGHLIGHT ENNEMI ET AJOUT DU CELUI DU ROI
+								}
 							}
-							break;
+							this.clean()
+							toHighlight.map(x => x.classList.add('highlight'))
+							return
 						}
 						case 'knight':
 						{
@@ -360,6 +370,7 @@
 									}
 						}
 					}
+				return false
 			}
 		}
 		
