@@ -39,7 +39,7 @@
 			{
 				chess.clean()
 				chess.selection = this
-				chess.highlight(this)
+				chess.highlight(this, this.turn, false, false)
 				this.classList.add('select')
 			}
 			//SI LA CASE SELECTIONNE EST HIGHLIGHT : SE DEPLACER, CHANGER LE TOUR ET ANALYSER SI ECHEC
@@ -75,6 +75,7 @@
 				this.turn = 1
 				this.pieces = ['pawn','rook','knight','bishop','king','queen','bishop','knight','rook']
 				this.rowColInCheck
+				this.threatToKing
 				
 				for(let i = this.row-1; i >= 0; i--)
 				{
@@ -169,6 +170,7 @@
 				{
 					this.tabJS[this.rowColInCheck[0]][this.rowColInCheck[1]].classList.remove('check')
 					this.rowColInCheck = undefined
+					this.threatToKing = null
 				}
 				else
 				{
@@ -199,8 +201,8 @@
 			{
 				const kingRow = king.dataset.row
 				const kingCol = king.dataset.column
-				const threatRow = threat.dataset.row
-				const threatCol = threat.dataset.column
+				const threatRow = parseInt(threat.dataset.row)
+				const threatCol = parseInt(threat.dataset.column)
 				let tempRow = threatRow
 				let tempCol = threatCol
 				let signRow
@@ -236,9 +238,11 @@
 					threatToKing.push([tempRow, tempCol])
 				}
 				
+				this.threatToKing = threatToKing
+				
 				for(let j = 0; j < currentPlayerPieces.length; j++)
 				{
-					this.highlight(currentPlayerPieces[j])
+					this.highlight(currentPlayerPieces[j], this.turn, false)
 					if(currentPlayerPieces[j].id != 'king')
 					{
 						for(let k = 0; k < threatToKing.length; k++)
@@ -269,7 +273,7 @@
 				}	
 			},
 					
-			highlight : function(selected, turnArg = this.turn, inception = false)
+			highlight : function(selected, turnArg = this.turn, inception = false, analyse = true)
 			{
 				const selectedRow = Number(selected.getAttribute('data-row'))
 				const selectedCol = Number(selected.getAttribute('data-column'))
@@ -296,6 +300,7 @@
 							if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && (selectedCol-1 >= 0))
 								if(inception || this.tabJS[selectedRow+turn][selectedCol-1].dataset.player == -turn)
 									this.tabJS[selectedRow+turn][selectedCol-1].classList.add('highlight')
+						//SI APPELEE PAR LA METHODE saveToKing SUPPRIME LES HIGHLIGHTS QUI NE SONT PAS COMPRIS ENTRE LE ROI ET LA MENACE		
 							break;
 						}
 						case 'king':
@@ -373,6 +378,19 @@
 									}
 						}
 					}
+				if(this.threatToKing && !analyse && selected.id != 'king')
+				{
+					const allHighlight = this.body.querySelectorAll('.highlight')
+					for(let i = 0; i < allHighlight.length; i++)
+					{
+						allHighlight[i].classList.remove('highlight')
+						let highlightRow = parseInt(allHighlight[i].dataset.row)
+						let highlightCol = parseInt(allHighlight[i].dataset.column)
+						for(let j = 0; j < this.threatToKing.length; j++)
+							if(this.threatToKing[j][0] == highlightRow && this.threatToKing[j][1] == highlightCol)
+								allHighlight[i].classList.add('highlight')
+					}
+				}
 				return false
 			}
 		}
