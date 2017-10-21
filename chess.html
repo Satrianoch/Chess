@@ -423,7 +423,7 @@
 											if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && (this.tabJS[checkRow][checkCol].dataset.player != turn || inception))
 												this.tabJS[checkRow][checkCol].classList.add('highlight')
 										//ARRETE LA BOUCLE SI UNE PIECE EST SUR CETTE CASE 
-											if(this.tabJS[checkRow][checkCol].id && !inception_2)
+											if(this.tabJS[checkRow][checkCol].id && !inception_2  || (this.tabJS[checkRow][checkCol].dataset.player == turn && inception_2))
 												break;
 										}
 							}
@@ -447,8 +447,15 @@
 						for(let a = 0; a < this.row; a++)
 							for(let b = 0; b < this.col; b++)
 								for(let c = 0; c < threatToKingCommon.length; c++)
-									if(threatToKingCommon[c][0] != a && threatToKingCommon[c][1] != b)
-										this.tabJS[a][b].classList.remove('highlight')
+								{
+									this.tabJS[a][b].classList.remove('highlight')
+									if((threatToKingCommon[c][0] == a && threatToKingCommon[c][1] == b) && (this.tabJS[limitedPiece.dataset.row][limitedPiece.dataset.column] != this.tabJS[threatToKingCommon[c][0]][threatToKingCommon[c][1]]))
+									{
+										this.tabJS[a][b].classList.add('highlight')
+										break
+									}
+								}
+									
 					}
 				}
 				return false
