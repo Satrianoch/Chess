@@ -223,21 +223,24 @@
 				else
 					signCol = 0
 				
-				
-				const limitRow = parseInt(kingRow) + parseInt(-signRow)
-				const limitCol = parseInt(kingCol) + parseInt(-signCol)
-				tempRow = parseInt(tempRow)
-				tempCol = parseInt(tempCol)
-				//STOCKAGE DES CASES ENTRE LA MENACE(COMPRIS) ET LE ROI(NON COMPRIS) DANS L'ARRAY threatToKing
-				while(tempRow != limitRow || tempCol != limitCol)
-				{	
-					if(tempRow != limitRow)
-						tempRow = parseInt(Number(signRow) + Number(tempRow))
-					if(tempCol != limitCol)
-						tempCol = parseInt(Number(signCol) + Number(tempCol))
-					threatToKing.push([tempRow, tempCol])
+				if(threat.id == 'knight')
+					threatToKing.push([threatRow, threatCol])
+				else
+				{
+					const limitRow = parseInt(kingRow) + parseInt(-signRow)
+					const limitCol = parseInt(kingCol) + parseInt(-signCol)
+					tempRow = parseInt(tempRow)
+					tempCol = parseInt(tempCol)
+					//STOCKAGE DES CASES ENTRE LA MENACE(COMPRIS) ET LE ROI(NON COMPRIS) DANS L'ARRAY threatToKing
+					while(tempRow != limitRow || tempCol != limitCol)
+					{	
+						if(tempRow != limitRow)
+							tempRow = parseInt(Number(signRow) + Number(tempRow))
+						if(tempCol != limitCol)
+							tempCol = parseInt(Number(signCol) + Number(tempCol))
+						threatToKing.push([tempRow, tempCol])
+					}
 				}
-				
 				this.threatToKing = threatToKing
 				
 				for(let j = 0; j < currentPlayerPieces.length; j++)
