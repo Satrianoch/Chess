@@ -182,6 +182,7 @@
 							currentPlayerKing.classList.add('check')
 							this.rowColInCheck = [currentPlayerKing.dataset.row, currentPlayerKing.dataset.column]
 							this.clean()
+							this.threatToKing = this.calcThreatToKing(currentPlayerPieces, opposantPlayerPieces[i], currentPlayerKing)
 							this.saveTheKing(currentPlayerPieces, opposantPlayerPieces[i], currentPlayerKing)
 							this.checkMate(currentPlayerPieces)
 						}
@@ -197,17 +198,17 @@
 				alert('ECHEC ET MATH.')
 			},
 			
-			saveTheKing : function(currentPlayerPieces, threat, king)
+			calcThreatToKing : function(currentPlayerPieces, threat, king)
 			{
 				const kingRow = king.dataset.row
 				const kingCol = king.dataset.column
 				const threatRow = parseInt(threat.dataset.row)
 				const threatCol = parseInt(threat.dataset.column)
+				const threatToKing = [[threatRow, threatCol]]
 				let tempRow = threatRow
 				let tempCol = threatCol
 				let signRow
 				let signCol
-				let threatToKing = [[threatRow, threatCol]]
 				
 				if(threatRow > kingRow)
 					signRow = -1
@@ -222,7 +223,7 @@
 					signCol = 1
 				else
 					signCol = 0
-				
+					
 				if(threat.id == 'knight')
 					threatToKing.push([threatRow, threatCol])
 				else
@@ -241,16 +242,19 @@
 						threatToKing.push([tempRow, tempCol])
 					}
 				}
-				this.threatToKing = threatToKing
-				
+					return threatToKing					
+			},
+			
+			saveTheKing : function(currentPlayerPieces, threat, king)
+			{
 				for(let j = 0; j < currentPlayerPieces.length; j++)
 				{
 					this.highlight(currentPlayerPieces[j], this.turn, false)
 					if(currentPlayerPieces[j].id != 'king')
 					{
-						for(let k = 0; k < threatToKing.length; k++)
+						for(let k = 0; k < this.threatToKing.length; k++)
 						{
-							if(Array.from(this.tabJS[threatToKing[k][0]][threatToKing[k][1]].classList).includes('highlight'))
+							if(Array.from(this.tabJS[this.threatToKing[k][0]][this.threatToKing[k][1]].classList).includes('highlight'))
 							{
 								currentPlayerPieces[j].classList.remove('freeze')
 								break
@@ -276,122 +280,175 @@
 				}	
 			},
 					
-			highlight : function(selected, turnArg = this.turn, inception = false, analyse = true)
+			highlight : function(selected, turnArg = this.turn, inception = false, analyse = true, inception_2 = false)
 			{
 				const selectedRow = Number(selected.getAttribute('data-row'))
 				const selectedCol = Number(selected.getAttribute('data-column'))
 				const selectedPlayer = selected.getAttribute('data-player')
 				const opposantPlayerPieces = Array.from(this.body.querySelectorAll(`[data-player='${-this.turn}']`))
+				const currentPlayerPieces = Array.from(this.body.querySelectorAll(`[data-player='${this.turn}']`))
+				const currentPlayerKing = this.body.querySelector(`#king[data-player='${this.turn}']`)
 				const turn = turnArg
+				let limitedPiece
+				let threatToKingCommon
 				//SI LA PIECE SELECTIONNEE N'EST PAS FREEZE
 				if(!Array.from(selected.classList).includes('freeze'))
-					switch(selected.id)
-					{
-						case 'pawn':
+				{
+					if(!analyse)
 						{
-						//HIGHLIGHT DE LA CASE DEVANT LE PION (SI LA CASE EXISTE ET SI ELLE EST VIDE) ET QUE LA FONCTION N'EST PAS APPELEE PAR LE ROI
-							if(((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && !this.tabJS[selectedRow+turn][selectedCol].id) && !inception)
-								this.tabJS[selectedRow+turn][selectedCol].classList.add('highlight')
-						//HIGHLIGHT DE LA DEUXIEME CASE DEVANT LE PION (S'IL EST A L'EMPLACEMENT INITIAL ET QU'AUCUNE PIECE BLOQUE LE CHEMIN) ET QUE LA FONCTION N'EST PAS APPELEE PAR LE ROI
-							if(((turn == 1 && selectedRow == 1 || turn == -1 && selectedRow == this.row - 2) && !this.tabJS[selectedRow+turn][selectedCol].id && !this.tabJS[selectedRow+(turn*2)][selectedCol].id) && !inception)
-								this.tabJS[selectedRow+(turn*2)][selectedCol].classList.add('highlight')
-						//HIGHLIGHT DE LA CASE EN DIAGONAL SI ELLE EXISTE ET (EST PRISE PAR UNE PIECE ADVERSE OU QUE LA FONCTION EST APPELEE PAR LE ROI)
-							if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && (selectedCol+1 < this.col))
-								if(inception || this.tabJS[selectedRow+turn][selectedCol+1].dataset.player == -turn)
-									this.tabJS[selectedRow+turn][selectedCol+1].classList.add('highlight')
-						//HIGHLIGHT DE LA CASE EN ANTIDIAGONAL SI ELLE EXISTE ET (EST PRISE PAR UNE PIECE ADVERSE OU QUE LA FONCTION EST APPELEE PAR LE ROI)
-							if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && (selectedCol-1 >= 0))
-								if(inception || this.tabJS[selectedRow+turn][selectedCol-1].dataset.player == -turn)
-									this.tabJS[selectedRow+turn][selectedCol-1].classList.add('highlight')
-						//SI APPELEE PAR LA METHODE saveToKing SUPPRIME LES HIGHLIGHTS QUI NE SONT PAS COMPRIS ENTRE LE ROI ET LA MENACE		
-							break;
-						}
-						case 'king':
-						{
-						//TABLEAU CONTENANT LES DEPLACEMENTS D'UNE CASE DANS TOUTES LES DIRECTIONS
-							const checkHighlight = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]]
-							let toHighlight = []
-							let checkRow
-							let checkCol
-							for(let j = 0; j < opposantPlayerPieces.length; j++)
+							for(let i = 0; i < opposantPlayerPieces.length; i++)
 							{
-								//AJOUT DU HIGHLIGHT DE TOUS LES ENNEMIS (PAS LE ROI SI LA FONCTION EST APPELEE PAR LE ROI ADVERSE ET QU'ON EST SUR LE ROI)
-								if(opposantPlayerPieces[j].id != 'king' || (opposantPlayerPieces[j].id == 'king' && !inception))
-									this.highlight(opposantPlayerPieces[j], -this.turn, true)
-							}
-							for(let i = 0; i < checkHighlight.length; i++)
-							{
-								checkRow = selectedRow+checkHighlight[i][0]
-								checkCol = selectedCol+checkHighlight[i][1]
-								//STOCKAGE DES CASES QUI NE DEBORDENT PAS DU PLATEAU, NE SONT PAS ALLIE ET NE SONT PAS DANS LE CHAMPS D'ATTAQUE D'UN ENNEMI
-								if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != turn && !Array.from(this.tabJS[checkRow][checkCol].classList).includes('highlight'))
-									toHighlight.push(this.tabJS[checkRow][checkCol])
-									//CLEAN DU HIGHLIGHT DE TOUS LES HIGHLIGHTS SI LA FONCTION N'EST PAS APPELEE PAR LE ROI ADVERSE ET AJOUT DU CELUI DU ROI
-							}
-							if(!inception)
-								this.clean()
-							toHighlight.map(x => x.classList.add('highlight'))
-							return
-						}
-						case 'knight':
-						{
-						//TABLEAU CONTENANT LES DEPLACEMENTS POSSIBLE DU CAVALIER
-							const checkHighlight = [[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]]
-							let checkRow
-							let checkCol
-							for(let i = 0; i < checkHighlight.length; i++)
-							{
-								checkRow = selectedRow+checkHighlight[i][0]
-								checkCol = selectedCol+checkHighlight[i][1]
-								//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET (N'EST PAS ALLIE OU QUE LA FONCTION EST APPELEE PAR LE ROI) 
-								if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && (this.tabJS[checkRow][checkCol].dataset.player != turn || inception))
-									this.tabJS[checkRow][checkCol].classList.add('highlight')
-							}
-							break;
-						}
-						case 'queen':
-						case 'rook':
-						case 'bishop':
-						{
-							let checkHighlight
-							if(selected.id == 'queen')
-							//TABLEAU CONTENANT LES DEPLACEMENTS D'UNE CASE DANS TOUTES LES DIRECTIONS
-								checkHighlight = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]]
-							else if(selected.id == 'rook')
-							//TABLEAU CONTENANT LES DEPLACEMENTS D'UNE CASE EN HORIZONTAL ET VERTICAL
-								checkHighlight = [[1,0],[-1,0],[0,1],[0,-1]]
-							else if(selected.id == 'bishop')
-							//TABLEAU CONTENANT LES DEPLACEMENTS D'UNE CASE EN DIAGONAL
-								checkHighlight = [[1,1],[-1,1],[1,-1],[-1,-1]]
-							let checkRow
-							let checkCol
-							//POUR CHAQUE DIRECTIONS DU TABLEAU
-							for(let i = 0; i < checkHighlight.length; i++)
-							//PROGRESSE CASE PAR CASE TANT QU'ELLE NE DEBORDE PAR DU PLATEAU. SI UNE PIECE SE TROUVE SUR LA CASE, ARRETE LA BOUCLE
-								for(let j = 1; selectedRow+(checkHighlight[i][0]*j) <= this.row-1 && selectedRow+(checkHighlight[i][0]*j) >= 0 && selectedCol+(checkHighlight[i][1]*j) <= this.col-1 && selectedCol+(checkHighlight[i][1]*j) >= 0; j++)
+								this.highlight(opposantPlayerPieces[i], -turn, false, true, true)
+								if(Array.from(currentPlayerKing.classList).includes('highlight'))
+								{
+									currentPlayerKing.classList.remove('highlight')
+									threatToKingCommon = this.calcThreatToKing(currentPlayerPieces, opposantPlayerPieces[i], currentPlayerKing)
+									let count = 0
+									let tempLimitedPiece
+									for(rowAndCol of threatToKingCommon)								
+										if(Array.from(this.tabJS[rowAndCol[0]][rowAndCol[1]].classList).includes('highlight') && this.tabJS[rowAndCol[0]][rowAndCol[1]].dataset.player == turn)
+										{
+											tempLimitedPiece = this.tabJS[rowAndCol[0]][rowAndCol[1]]
+											count++
+										}
+									if(count == 1)
+										limitedPiece = tempLimitedPiece
+									else
 									{
-										checkRow = selectedRow+(checkHighlight[i][0]*j)
-										checkCol = selectedCol+(checkHighlight[i][1]*j)
-									//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET (N'EST PAS ALLIE OU QUE LA FONCTION EST APPELEE PAR LE ROI)
+										this.clean()
+										break
+									}
+								}
+								this.clean()
+							}
+						}
+						switch(selected.id)
+						{
+							case 'pawn':
+							{
+								if(!inception_2)
+								{
+									//HIGHLIGHT DE LA CASE DEVANT LE PION (SI LA CASE EXISTE ET SI ELLE EST VIDE) ET QUE LA FONCTION N'EST PAS APPELEE PAR LE ROI
+									if(((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && !this.tabJS[selectedRow+turn][selectedCol].id) && !inception)
+										this.tabJS[selectedRow+turn][selectedCol].classList.add('highlight')
+								//HIGHLIGHT DE LA DEUXIEME CASE DEVANT LE PION (S'IL EST A L'EMPLACEMENT INITIAL ET QU'AUCUNE PIECE BLOQUE LE CHEMIN) ET QUE LA FONCTION N'EST PAS APPELEE PAR LE ROI
+									if(((turn == 1 && selectedRow == 1 || turn == -1 && selectedRow == this.row - 2) && !this.tabJS[selectedRow+turn][selectedCol].id && !this.tabJS[selectedRow+(turn*2)][selectedCol].id) && !inception)
+										this.tabJS[selectedRow+(turn*2)][selectedCol].classList.add('highlight')
+								//HIGHLIGHT DE LA CASE EN DIAGONAL SI ELLE EXISTE ET (EST PRISE PAR UNE PIECE ADVERSE OU QUE LA FONCTION EST APPELEE PAR LE ROI)
+									if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && (selectedCol+1 < this.col))
+										if(inception || this.tabJS[selectedRow+turn][selectedCol+1].dataset.player == -turn)
+											this.tabJS[selectedRow+turn][selectedCol+1].classList.add('highlight')
+								//HIGHLIGHT DE LA CASE EN ANTIDIAGONAL SI ELLE EXISTE ET (EST PRISE PAR UNE PIECE ADVERSE OU QUE LA FONCTION EST APPELEE PAR LE ROI)
+									if((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && (selectedCol-1 >= 0))
+										if(inception || this.tabJS[selectedRow+turn][selectedCol-1].dataset.player == -turn)
+											this.tabJS[selectedRow+turn][selectedCol-1].classList.add('highlight')
+								//SI APPELEE PAR LA METHODE saveToKing SUPPRIME LES HIGHLIGHTS QUI NE SONT PAS COMPRIS ENTRE LE ROI ET LA MENACE
+								}
+								break;
+							}
+							case 'king':
+							{
+								if(!inception_2)
+								{
+								//TABLEAU CONTENANT LES DEPLACEMENTS D'UNE CASE DANS TOUTES LES DIRECTIONS
+									const checkHighlight = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]]
+									let toHighlight = []
+									let checkRow
+									let checkCol
+									for(let j = 0; j < opposantPlayerPieces.length; j++)
+									{
+										//AJOUT DU HIGHLIGHT DE TOUS LES ENNEMIS (PAS LE ROI SI LA FONCTION EST APPELEE PAR LE ROI ADVERSE ET QU'ON EST SUR LE ROI)
+										if(opposantPlayerPieces[j].id != 'king' || (opposantPlayerPieces[j].id == 'king' && !inception))
+											this.highlight(opposantPlayerPieces[j], -this.turn, true)
+									}
+									for(let i = 0; i < checkHighlight.length; i++)
+									{
+										checkRow = selectedRow+checkHighlight[i][0]
+										checkCol = selectedCol+checkHighlight[i][1]
+										//STOCKAGE DES CASES QUI NE DEBORDENT PAS DU PLATEAU, NE SONT PAS ALLIE ET NE SONT PAS DANS LE CHAMPS D'ATTAQUE D'UN ENNEMI
+										if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != turn && !Array.from(this.tabJS[checkRow][checkCol].classList).includes('highlight'))
+											toHighlight.push(this.tabJS[checkRow][checkCol])
+											//CLEAN DU HIGHLIGHT DE TOUS LES HIGHLIGHTS SI LA FONCTION N'EST PAS APPELEE PAR LE ROI ADVERSE ET AJOUT DU CELUI DU ROI
+									}
+									if(!inception)
+										this.clean()
+									toHighlight.map(x => x.classList.add('highlight'))
+									return
+								}
+								break
+							}
+							case 'knight':
+							{
+								if(!inception_2)
+								{
+								//TABLEAU CONTENANT LES DEPLACEMENTS POSSIBLE DU CAVALIER
+									const checkHighlight = [[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]]
+									let checkRow
+									let checkCol
+									for(let i = 0; i < checkHighlight.length; i++)
+									{
+										checkRow = selectedRow+checkHighlight[i][0]
+										checkCol = selectedCol+checkHighlight[i][1]
+										//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET (N'EST PAS ALLIE OU QUE LA FONCTION EST APPELEE PAR LE ROI)
 										if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && (this.tabJS[checkRow][checkCol].dataset.player != turn || inception))
 											this.tabJS[checkRow][checkCol].classList.add('highlight')
-									//ARRETE LA BOUCLE SI UNE PIECE EST SUR CETTE CASE 
-										if(this.tabJS[checkRow][checkCol].id)
-											break;
 									}
+								}
+								break;
+							}
+							case 'queen':
+							case 'rook':
+							case 'bishop':
+							{
+								let checkHighlight
+								if(selected.id == 'queen')
+								//TABLEAU CONTENANT LES DEPLACEMENTS D'UNE CASE DANS TOUTES LES DIRECTIONS
+									checkHighlight = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]]
+								else if(selected.id == 'rook')
+								//TABLEAU CONTENANT LES DEPLACEMENTS D'UNE CASE EN HORIZONTAL ET VERTICAL
+									checkHighlight = [[1,0],[-1,0],[0,1],[0,-1]]
+								else if(selected.id == 'bishop')
+								//TABLEAU CONTENANT LES DEPLACEMENTS D'UNE CASE EN DIAGONAL
+									checkHighlight = [[1,1],[-1,1],[1,-1],[-1,-1]]
+								let checkRow
+								let checkCol
+								//POUR CHAQUE DIRECTIONS DU TABLEAU
+								for(let i = 0; i < checkHighlight.length; i++)
+								//PROGRESSE CASE PAR CASE TANT QU'ELLE NE DEBORDE PAR DU PLATEAU. SI UNE PIECE SE TROUVE SUR LA CASE, ARRETE LA BOUCLE
+									for(let j = 1; selectedRow+(checkHighlight[i][0]*j) <= this.row-1 && selectedRow+(checkHighlight[i][0]*j) >= 0 && selectedCol+(checkHighlight[i][1]*j) <= this.col-1 && selectedCol+(checkHighlight[i][1]*j) >= 0; j++)
+										{
+											checkRow = selectedRow+(checkHighlight[i][0]*j)
+											checkCol = selectedCol+(checkHighlight[i][1]*j)
+										//HIGHLIGHT DE LA CASE SI ELLE NE DEBORDE PAS DU PLATEAU ET (N'EST PAS ALLIE OU QUE LA FONCTION EST APPELEE PAR LE ROI)
+											if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && (this.tabJS[checkRow][checkCol].dataset.player != turn || inception))
+												this.tabJS[checkRow][checkCol].classList.add('highlight')
+										//ARRETE LA BOUCLE SI UNE PIECE EST SUR CETTE CASE 
+											if(this.tabJS[checkRow][checkCol].id && !inception_2)
+												break;
+										}
+							}
+						}
+					if(this.threatToKing && !analyse && selected.id != 'king')
+					{
+						const allHighlight = this.body.querySelectorAll('.highlight')
+						for(let i = 0; i < allHighlight.length; i++)
+						{
+							allHighlight[i].classList.remove('highlight')
+							let highlightRow = parseInt(allHighlight[i].dataset.row)
+							let highlightCol = parseInt(allHighlight[i].dataset.column)
+							for(let j = 0; j < this.threatToKing.length; j++)
+								if(this.threatToKing[j][0] == highlightRow && this.threatToKing[j][1] == highlightCol)
+									allHighlight[i].classList.add('highlight')
 						}
 					}
-				if(this.threatToKing && !analyse && selected.id != 'king')
-				{
-					const allHighlight = this.body.querySelectorAll('.highlight')
-					for(let i = 0; i < allHighlight.length; i++)
+					
+					if(!analyse && selected == limitedPiece)
 					{
-						allHighlight[i].classList.remove('highlight')
-						let highlightRow = parseInt(allHighlight[i].dataset.row)
-						let highlightCol = parseInt(allHighlight[i].dataset.column)
-						for(let j = 0; j < this.threatToKing.length; j++)
-							if(this.threatToKing[j][0] == highlightRow && this.threatToKing[j][1] == highlightCol)
-								allHighlight[i].classList.add('highlight')
+						for(let a = 0; a < this.row; a++)
+							for(let b = 0; b < this.col; b++)
+								for(let c = 0; c < threatToKingCommon.length; c++)
+									if(threatToKingCommon[c][0] != a && threatToKingCommon[c][1] != b)
+										this.tabJS[a][b].classList.remove('highlight')
 					}
 				}
 				return false
