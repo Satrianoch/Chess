@@ -39,7 +39,6 @@
 			{
 				chess.clean()
 				chess.selection = this
-				chess.whoIsLimited()
 				chess.highlight(this, this.turn, false, false)
 				this.classList.add('select')
 			}
@@ -57,6 +56,8 @@
 				chess.turn = (chess.turn == 1) ? -1 : 1
 				chess.check()
 				chess.clean()
+				chess.limitedPiece = undefined
+				chess.whoIsLimited()
 			}
 			//SI LA CASE EST VIDE ENLEVE LA SELECTION ACTUELLE
 			if(!this.id)
@@ -291,7 +292,7 @@
 				for(let i = 0; i < opposantPlayerPieces.length; i++)
 				{
 					this.highlight(opposantPlayerPieces[i], -this.turn, false, true, true)
-					if(Array.from(currentPlayerKing.classList).includes('highlight'))
+					if(Array.from(currentPlayerKing.classList).includes('highlight') && opposantPlayerPieces[i].id != 'king')
 					{
 						currentPlayerKing.classList.remove('highlight')
 						this.threatToKingCommon = this.calcThreatToKing(currentPlayerPieces, opposantPlayerPieces[i], currentPlayerKing)
