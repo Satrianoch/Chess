@@ -39,8 +39,8 @@
 			{
 				chess.clean()
 				chess.selection = this
-				chess.highlight(this, this.turn, false, false)
 				this.classList.add('select')
+				chess.highlight(this, this.turn, false, false)
 			}
 			//SI LA CASE SELECTIONNE EST HIGHLIGHT : SE DEPLACER, CHANGER LE TOUR ET ANALYSER SI ECHEC
 			if(Array.from(this.classList).includes('highlight'))
@@ -364,6 +364,8 @@
 									//AJOUT DU HIGHLIGHT DE TOUS LES ENNEMIS (PAS LE ROI SI LA FONCTION EST APPELEE PAR LE ROI ADVERSE ET QU'ON EST SUR LE ROI)
 									if(opposantPlayerPieces[j].id != 'king' || (opposantPlayerPieces[j].id == 'king' && !inception))
 										this.highlight(opposantPlayerPieces[j], -this.turn, true)
+									if((opposantPlayerPieces[j].id == 'queen' || opposantPlayerPieces[j].id == 'rook' || opposantPlayerPieces[j].id == 'bishop'))
+										this.highlight(opposantPlayerPieces[j], -this.turn, false, true, true)
 								}
 								for(let i = 0; i < checkHighlight.length; i++)
 								{
@@ -428,6 +430,8 @@
 											this.tabJS[checkRow][checkCol].classList.add('highlight')
 									//ARRETE LA BOUCLE SI UNE PIECE EST SUR CETTE CASE 
 										if(this.tabJS[checkRow][checkCol].id && !inception_2  || (this.tabJS[checkRow][checkCol].dataset.player == turn && inception_2))
+											break;
+										else if(inception_2 && this.tabJS[checkRow][checkCol].id && this.tabJS[checkRow][checkCol].id != 'king' && Array.from(this.body.querySelector(`#king[data-player='${this.turn}']`).classList).includes('select'))
 											break;
 									}
 						}
