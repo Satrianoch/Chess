@@ -6,7 +6,9 @@
 	<style>
 		body{margin:0;padding:0;background:#000}
 		table{margin: auto;margin-top: 50vh;transform: translateY(-50%)}
-		td{width:65px;height:65px;border:2px solid}
+		td{width:66px;height:66px;border:2px solid;border-radius:6px}
+		div{border:3px solid #BADA55;position: absolute;background:#fff173; height: 42px; width: 110px;border-radius:6px; left:50%; top:50%;transform: translateX(-50%); margin-top: -33px; text-align: center}
+		button{background: #BADA55;border-radius:6px}
 		.black{background:#433}
 		.white{background:#FB1}
 		.select{background:#23D}
@@ -29,6 +31,14 @@
 </head>
 <body>
 	<script>
+		
+		function clickOnBtn()
+		{
+			chess.body.removeChild(document.querySelector('table'))
+			chess.selection = undefined
+			chess.init(row, col)
+		}
+		
 		function clickOnTd()
 		{
 			//SELECTION D'UNE CASE AU PREMIER TOUR SEULEMENT
@@ -76,10 +86,10 @@
 				this.selection
 				this.turn = 1
 				this.pieces = ['pawn','rook','knight','bishop','king','queen','bishop','knight','rook']
-				this.rowColInCheck
-				this.threatToKing
-				this.threatToKingCommon
-				this.limitedPiece
+				this.rowColInCheck = null
+				this.threatToKing = null
+				this.threatToKingCommon = null
+				this.limitedPiece = null
 				
 				for(let i = this.row-1; i >= 0; i--)
 				{
@@ -199,7 +209,13 @@
 				for(let i = 0; i < currentPlayerPieces.length; i++)
 					if(!Array.from(currentPlayerPieces[i].classList).includes('freeze'))
 						return
-				alert('ECHEC ET MATH.')
+				const checkMatePanel = document.createElement('div')
+				checkMatePanel.textContent = 'CHECKMATE !'
+				const btn = document.createElement('button')
+				btn.textContent = 'Restart'
+				btn.addEventListener('click', clickOnBtn)
+				checkMatePanel.appendChild(btn)
+				this.body.querySelector('table').appendChild(checkMatePanel)
 			},
 			
 			calcThreatToKing : function(currentPlayerPieces, threat, king)
@@ -471,8 +487,10 @@
 				return false
 			}
 		}
+		const row = 8
+		const col = 8
+		chess.init(row, col)
 		
-		chess.init(8,8)
 	</script>
 </body>
 </html>
