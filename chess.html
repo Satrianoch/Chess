@@ -50,7 +50,7 @@
 				chess.selection = this
 				this.classList.add('select')
 				chess.highlight(this, this.turn, false, false)
-				if(chess.turn == -1)	
+				if(chess.botBool && chess.turn == -1)	
 					chess.bot()
 			}
 			//SI LA CASE SELECTIONNE EST HIGHLIGHT : SE DEPLACER, CHANGER LE TOUR ET ANALYSER SI ECHEC
@@ -69,7 +69,7 @@
 				chess.clean()
 				chess.limitedPiece = undefined
 				chess.whoIsLimited()
-				if(chess.turn == -1)
+				if(chess.botBool && chess.turn == -1)
 					chess.bot()
 
 			}
@@ -94,6 +94,7 @@
 				this.threatToKing = null
 				this.threatToKingCommon = null
 				this.limitedPiece = null
+				this.botBool = true
 				
 				for(let i = this.row-1; i >= 0; i--)
 				{
@@ -398,6 +399,8 @@
 								}
 								if(!inception)
 									this.clean()
+								if(!analyse)
+									chess.selection.classList.add('select')
 								toHighlight.map(x => x.classList.add('highlight'))
 								return
 							}
@@ -449,10 +452,10 @@
 										if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && (this.tabJS[checkRow][checkCol].dataset.player != turn || inception))
 											this.tabJS[checkRow][checkCol].classList.add('highlight')
 									//ARRETE LA BOUCLE SI UNE PIECE EST SUR CETTE CASE 
-										if(this.tabJS[checkRow][checkCol].id && !inception_2  || (this.tabJS[checkRow][checkCol].dataset.player == turn && inception_2))
-											break;
-										else if(inception_2 && this.tabJS[checkRow][checkCol].id && this.tabJS[checkRow][checkCol].id != 'king' && Array.from(this.body.querySelector(`#king[data-player='${this.turn}']`).classList).includes('select'))
-											break;
+										if((this.tabJS[checkRow][checkCol].id && !inception_2)  || (this.tabJS[checkRow][checkCol].dataset.player == turn))
+											break
+										else if(inception_2 && this.tabJS[checkRow][checkCol].id && this.tabJS[checkRow][checkCol].id != 'king' && (Array.from(this.body.querySelector(`#king[data-player='${this.turn}']`).classList).includes('select') || this.rowColInCheck != null))
+											break
 									}
 						}
 					}
