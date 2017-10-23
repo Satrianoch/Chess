@@ -31,7 +31,6 @@
 </head>
 <body>
 	<script>
-		
 		function clickOnBtn()
 		{
 			chess.body.removeChild(document.querySelector('table'))
@@ -51,6 +50,8 @@
 				chess.selection = this
 				this.classList.add('select')
 				chess.highlight(this, this.turn, false, false)
+				if(chess.turn == -1)	
+					chess.bot()
 			}
 			//SI LA CASE SELECTIONNE EST HIGHLIGHT : SE DEPLACER, CHANGER LE TOUR ET ANALYSER SI ECHEC
 			if(Array.from(this.classList).includes('highlight'))
@@ -68,6 +69,9 @@
 				chess.clean()
 				chess.limitedPiece = undefined
 				chess.whoIsLimited()
+				if(chess.turn == -1)
+					chess.bot()
+
 			}
 			//SI LA CASE EST VIDE ENLEVE LA SELECTION ACTUELLE
 			if(!this.id)
@@ -485,8 +489,45 @@
 					}
 				}
 				return false
+			},
+			
+			bot : function(selection)
+			{
+				let random
+				let highlightCheck = false
+				let botSelection
+				for(let a = 0; a < this.row; a++)
+					for(let b = 0; b < this.col; b++)
+						if(Array.from(this.tabJS[a][b].classList).includes('highlight'))
+						{
+							highlightCheck = true
+							a = this.row
+							b = this.row
+						}
+				if(highlightCheck)
+				{
+					console.log('HIGHLIGHT :')
+					const highlighted = Array.from(this.body.querySelectorAll('.highlight'))
+					random = Math.floor(Math.random() * highlighted.length)
+					botSelection = highlighted[random]
+				}
+				else		
+				{
+					console.log('SELECT :')
+					const currentPlayerPieces = Array.from(this.body.querySelectorAll(`[data-player='${this.turn}']`))
+					do
+					{
+						random = Math.floor(Math.random() * currentPlayerPieces.length)
+						botSelection = currentPlayerPieces[random]
+					}
+					while(this.selection == botSelection)
+					
+				}
+				console.log(botSelection)
+				botSelection.click()
 			}
 		}
+		
 		const row = 8
 		const col = 8
 		chess.init(row, col)
