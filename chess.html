@@ -7,8 +7,8 @@
 		body{margin:0;padding:0;background:#000}
 		table{margin: auto;margin-top: 50vh;transform: translateY(-50%)}
 		td{width:66px;height:66px;border:2px solid;border-radius:6px}
-		div{border:3px solid #BADA55;position: absolute;background:#fff173; height: 42px; width: 110px;border-radius:6px; left:50%; top:50%;transform: translateX(-50%); margin-top: -33px; text-align: center}
-		button{background: #BADA55;border-radius:6px}
+		div{border:3px solid #BADA55;position: absolute;background:#fff173;height:42px;width:110px;border-radius:6px; left:50%; top:50%;transform: translateX(-50%); margin-top: -33px; text-align: center}
+		button{background: #BADA55;border-radius:6px;display:block; margin: auto}
 		.black{background:#433}
 		.white{background:#FB1}
 		.select{background:#23D}
@@ -85,41 +85,42 @@
 			play : function(selection)
 			{
 				//SELECTION D'UNE CASE AU PREMIER TOUR SEULEMENT
-			if(this.selection == undefined)
-				this.selection = selection
-			//SELECTION D'UNE CASE SEULEMENT SI ELLE EST OCCUPEE PAR UN ALLIE
-			if(selection.id && selection.dataset.player == this.turn)
-			{
-				this.clean()
-				this.selection = selection
-				selection.classList.add('select')
-				this.highlight(selection, this.turn, false, false)
-				if(this.botBool && this.turn == -1)	
-					this.bot()
-			}
-			//SI LA CASE SELECTIONNE EST HIGHLIGHT : SE DEPLACER, CHANGER LE TOUR ET ANALYSER SI ECHEC
-			if(Array.from(selection.classList).includes('highlight'))
-			{
-				this.deplace(this.selection, selection)
-				//FIN PROVISOIRE LORSQUE LE ROI EST MORT
-				if(this.body.querySelectorAll('#king').length < 2)
+				if(this.selection == undefined)
+					this.selection = selection
+				//SELECTION D'UNE CASE SEULEMENT SI ELLE EST OCCUPEE PAR UN ALLIE
+				if(selection.id && selection.dataset.player == this.turn)
 				{
 					this.clean()
-					alert('Les ' + (this.turn == 1 ? 'blancs' : 'noirs') + ' ont gagnés.')
-					return
+					this.selection = selection
+					selection.classList.add('select')
+					this.highlight(selection, this.turn, false, false)
+					if(this.botBool && this.turn == -1)	
+						this.bot()
 				}
-				this.turn = (this.turn == 1) ? -1 : 1
-				this.check()
-				this.clean()
-				this.limitedPiece = undefined
-				this.whoIsLimited()
-				if(this.botBool && this.turn == -1)
-					this.bot()
-
-			}
-			//SI LA CASE EST VIDE ENLEVE LA SELECTION ACTUELLE
-			if(!selection.id)
-				this.clean()
+				//SI LA CASE SELECTIONNE EST HIGHLIGHT : SE DEPLACER, CHANGER LE TOUR ET ANALYSER SI ECHEC
+				if(Array.from(selection.classList).includes('highlight'))
+				{
+					this.deplace(this.selection, selection)
+					//FIN PROVISOIRE LORSQUE LE ROI EST MORT
+					if(this.body.querySelectorAll('#king').length < 2)
+					{
+						this.clean()
+						alert('Les ' + (this.turn == 1 ? 'blancs' : 'noirs') + ' ont gagnés.')
+						return
+					}
+					this.turn = (this.turn == 1) ? -1 : 1
+					this.check()
+					this.clean()
+					this.limitedPiece = undefined
+					if(this.rowColInCheck == null)
+						this.checkPat()
+					this.whoIsLimited()
+					if(this.botBool && this.turn == -1)
+						this.bot()
+				}
+				//SI LA CASE EST VIDE ENLEVE LA SELECTION ACTUELLE
+				if(!selection.id)
+					this.clean()
 			},
 			
 			paving : function(td, i, j)
@@ -226,6 +227,25 @@
 				checkMatePanel.appendChild(btn)
 				this.body.querySelector('table').appendChild(checkMatePanel)
 				this.botBool = false
+			},
+			
+			checkPat : function()
+			{
+				const currentPlayerPieces = Array.from(this.body.querySelectorAll(`[data-player='${this.turn}']`))
+				for(let i = 0; i < currentPlayerPieces.length; i++)
+					this.highlight(currentPlayerPieces[i])
+				if(this.body.querySelectorAll('.highlight').length == 0)
+				{
+					const checkMatePanel = document.createElement('div')
+					checkMatePanel.textContent = 'PAT !'
+					const btn = document.createElement('button')
+					btn.textContent = 'Restart'
+					btn.addEventListener('click', clickOnBtn)
+					checkMatePanel.appendChild(btn)
+					this.body.querySelector('table').appendChild(checkMatePanel)
+					this.botBool = false
+				}
+						
 			},
 			
 			calcThreatToKing : function(currentPlayerPieces, threat, king)
@@ -356,7 +376,7 @@
 					{
 						case 'pawn':
 						{
-							if(!inception_2)
+							if(!inception_2 && (selectedRow < this.row-1 && selectedRow > 0))
 							{
 								//HIGHLIGHT DE LA CASE DEVANT LE PION (SI LA CASE EXISTE ET SI ELLE EST VIDE) ET QUE LA FONCTION N'EST PAS APPELEE PAR LE ROI
 								if(((selectedRow+turn >= 0 || selectedRow+turn <= this.row) && !this.tabJS[selectedRow+turn][selectedCol].id) && !inception)
@@ -517,7 +537,7 @@
 					const highlighted = Array.from(this.body.querySelectorAll('.highlight'))
 					random = Math.floor(Math.random() * highlighted.length)
 					botSelection = highlighted[random]
-					console.log('highlight : ')
+					setTimeout(function(){chess.play(botSelection)}, 1000)
 				}
 				else		
 				{
@@ -528,17 +548,14 @@
 						botSelection = currentPlayerPieces[random]
 					}
 					while(this.selection == botSelection)
-					console.log('select : ')
-				}
-				console.log(random)
-				console.log(botSelection)
-				this.play(botSelection)
+					this.play(botSelection)
+				}	
 			}
 		}
 		
 		const row = 8
 		const col = 8
-		const bot = true
+		const bot = false
 		chess.init(row, col, bot)
 		
 	</script>
