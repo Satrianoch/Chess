@@ -29,6 +29,7 @@
 	</style>
 </head>
 <body>
+	<audio src='http://s1download-universal-soundbank.com/wav/9085.wav'></audio>
 	<script>
 		function clickOnBtn()
 		{
@@ -175,6 +176,7 @@
 			
 			deplace : function(oldPos, newPos)
 			{
+				this.body.querySelector('audio').play()
 				newPos.setAttribute('data-player', oldPos.getAttribute('data-player'))
 				oldPos.removeAttribute('data-player')
 				newPos.id = oldPos.id
@@ -231,10 +233,16 @@
 			
 			checkPat : function()
 			{
+				let count = 0
 				const currentPlayerPieces = Array.from(this.body.querySelectorAll(`[data-player='${this.turn}']`))
+				console.log(currentPlayerPieces)
 				for(let i = 0; i < currentPlayerPieces.length; i++)
-					this.highlight(currentPlayerPieces[i])
-				if(this.body.querySelectorAll('.highlight').length == 0)
+				{
+					 this.highlight(currentPlayerPieces[i])
+					 count += this.body.querySelectorAll('.highlight').length
+				}
+				console.log(count)
+				if(count == 0)
 				{
 					const checkMatePanel = document.createElement('div')
 					checkMatePanel.textContent = 'PAT !'
@@ -245,6 +253,7 @@
 					this.body.querySelector('table').appendChild(checkMatePanel)
 					this.botBool = false
 				}
+				this.clean()
 						
 			},
 			
@@ -537,7 +546,7 @@
 					const highlighted = Array.from(this.body.querySelectorAll('.highlight'))
 					random = Math.floor(Math.random() * highlighted.length)
 					botSelection = highlighted[random]
-					setTimeout(function(){chess.play(botSelection)}, 1000)
+					setTimeout(function(){chess.play(botSelection)}, 600)
 				}
 				else		
 				{
@@ -555,9 +564,8 @@
 		
 		const row = 8
 		const col = 8
-		const bot = false
+		const bot = true
 		chess.init(row, col, bot)
-		
 	</script>
 </body>
 </html>
