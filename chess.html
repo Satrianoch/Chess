@@ -14,7 +14,6 @@
 		.select{background:#23D}
 		.highlight{background:#1CE}
 		.check{background:#BA2B1E}
-		.freeze{background:#B00B1E;opacity: 0.33}
 		#pawn[data-player='-1']{background-image: url('img/pawnB.png'); background-size: 100% 100%}
 		#pawn[data-player='1']{background-image: url('img/pawnW.png'); background-size: 100% 100%}
 		#rook[data-player='-1']{background-image: url('img/rookB.png'); background-size: 100% 100%}
@@ -35,52 +34,17 @@
 		{
 			chess.body.removeChild(document.querySelector('table'))
 			chess.selection = undefined
-			chess.init(row, col)
+			chess.init(row, col, bot)
 		}
 		
 		function clickOnTd()
 		{
-			//SELECTION D'UNE CASE AU PREMIER TOUR SEULEMENT
-			if(chess.selection == undefined)
-				chess.selection = this
-			//SELECTION D'UNE CASE SEULEMENT SI ELLE EST OCCUPEE PAR UN ALLIE
-			if(this.id && this.dataset.player == chess.turn)
-			{
-				chess.clean()
-				chess.selection = this
-				this.classList.add('select')
-				chess.highlight(this, this.turn, false, false)
-				if(chess.botBool && chess.turn == -1)	
-					chess.bot()
-			}
-			//SI LA CASE SELECTIONNE EST HIGHLIGHT : SE DEPLACER, CHANGER LE TOUR ET ANALYSER SI ECHEC
-			if(Array.from(this.classList).includes('highlight'))
-			{
-				chess.deplace(chess.selection, this)
-				//FIN PROVISOIRE LORSQUE LE ROI EST MORT
-				if(chess.body.querySelectorAll('#king').length < 2)
-				{
-					chess.clean()
-					alert('Les ' + (chess.turn == 1 ? 'blancs' : 'noirs') + ' ont gagnés.')
-					return
-				}
-				chess.turn = (chess.turn == 1) ? -1 : 1
-				chess.check()
-				chess.clean()
-				chess.limitedPiece = undefined
-				chess.whoIsLimited()
-				if(chess.botBool && chess.turn == -1)
-					chess.bot()
-
-			}
-			//SI LA CASE EST VIDE ENLEVE LA SELECTION ACTUELLE
-			if(!this.id)
-				chess.clean()
+			chess.play(this)
 		}
 		
 		const chess = 
 		{ 
-			init : function(row, col)
+			init : function(row, col, bot)
 			{	
 				this.row = row
 				this.col = col
@@ -94,7 +58,7 @@
 				this.threatToKing = null
 				this.threatToKingCommon = null
 				this.limitedPiece = null
-				this.botBool = true
+				this.botBool = bot
 				
 				for(let i = this.row-1; i >= 0; i--)
 				{
@@ -116,6 +80,46 @@
 					this.tabHTML.appendChild(tr)
 				}
 				this.body.appendChild(this.tabHTML)
+			},
+			
+			play : function(selection)
+			{
+				//SELECTION D'UNE CASE AU PREMIER TOUR SEULEMENT
+			if(this.selection == undefined)
+				this.selection = selection
+			//SELECTION D'UNE CASE SEULEMENT SI ELLE EST OCCUPEE PAR UN ALLIE
+			if(selection.id && selection.dataset.player == this.turn)
+			{
+				this.clean()
+				this.selection = selection
+				selection.classList.add('select')
+				this.highlight(selection, this.turn, false, false)
+				if(this.botBool && this.turn == -1)	
+					this.bot()
+			}
+			//SI LA CASE SELECTIONNE EST HIGHLIGHT : SE DEPLACER, CHANGER LE TOUR ET ANALYSER SI ECHEC
+			if(Array.from(selection.classList).includes('highlight'))
+			{
+				this.deplace(this.selection, selection)
+				//FIN PROVISOIRE LORSQUE LE ROI EST MORT
+				if(this.body.querySelectorAll('#king').length < 2)
+				{
+					this.clean()
+					alert('Les ' + (this.turn == 1 ? 'blancs' : 'noirs') + ' ont gagnés.')
+					return
+				}
+				this.turn = (this.turn == 1) ? -1 : 1
+				this.check()
+				this.clean()
+				this.limitedPiece = undefined
+				this.whoIsLimited()
+				if(this.botBool && this.turn == -1)
+					this.bot()
+
+			}
+			//SI LA CASE EST VIDE ENLEVE LA SELECTION ACTUELLE
+			if(!selection.id)
+				this.clean()
 			},
 			
 			paving : function(td, i, j)
@@ -221,6 +225,7 @@
 				btn.addEventListener('click', clickOnBtn)
 				checkMatePanel.appendChild(btn)
 				this.body.querySelector('table').appendChild(checkMatePanel)
+				this.botBool = false
 			},
 			
 			calcThreatToKing : function(currentPlayerPieces, threat, king)
@@ -509,14 +514,13 @@
 						}
 				if(highlightCheck)
 				{
-					console.log('HIGHLIGHT :')
 					const highlighted = Array.from(this.body.querySelectorAll('.highlight'))
 					random = Math.floor(Math.random() * highlighted.length)
 					botSelection = highlighted[random]
+					console.log('highlight : ')
 				}
 				else		
 				{
-					console.log('SELECT :')
 					const currentPlayerPieces = Array.from(this.body.querySelectorAll(`[data-player='${this.turn}']`))
 					do
 					{
@@ -524,16 +528,18 @@
 						botSelection = currentPlayerPieces[random]
 					}
 					while(this.selection == botSelection)
-					
+					console.log('select : ')
 				}
+				console.log(random)
 				console.log(botSelection)
-				botSelection.click()
+				this.play(botSelection)
 			}
 		}
 		
 		const row = 8
 		const col = 8
-		chess.init(row, col)
+		const bot = true
+		chess.init(row, col, bot)
 		
 	</script>
 </body>
