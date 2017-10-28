@@ -221,14 +221,8 @@
 				for(let i = 0; i < currentPlayerPieces.length; i++)
 					if(!Array.from(currentPlayerPieces[i].classList).includes('freeze'))
 						return
-				const checkMatePanel = document.createElement('div')
-				checkMatePanel.textContent = 'CHECKMATE !'
-				const btn = document.createElement('button')
-				btn.textContent = 'Restart'
-				btn.addEventListener('click', clickOnBtn)
-				checkMatePanel.appendChild(btn)
-				this.body.querySelector('table').appendChild(checkMatePanel)
-				this.botBool = false
+				this.panel('CHECKMATE !', true)
+                this.botBool = false
 			},
 			
 			checkPat : function()
@@ -241,21 +235,27 @@
 					 this.highlight(currentPlayerPieces[i])
 					 count += this.body.querySelectorAll('.highlight').length
 				}
-				console.log(count)
 				if(count == 0)
 				{
-					const checkMatePanel = document.createElement('div')
-					checkMatePanel.textContent = 'PAT !'
-					const btn = document.createElement('button')
-					btn.textContent = 'Restart'
-					btn.addEventListener('click', clickOnBtn)
-					checkMatePanel.appendChild(btn)
-					this.body.querySelector('table').appendChild(checkMatePanel)
-					this.botBool = false
+					this.panel('PAT !', true)
+                    this.botBool = false
 				}
-				this.clean()
-						
+				this.clean()			
 			},
+            
+            panel : function(text, restart)
+            {
+                const panel = document.createElement('div')
+                panel.textContent = text
+                if(restart)
+                {
+                    const btn = document.createElement('button')
+                    btn.textContent = 'Restart'
+                    btn.addEventListener('click', clickOnBtn)
+                    panel.appendChild(btn)
+                }
+                this.body.querySelector('table').appendChild(panel) 
+            },
 			
 			calcThreatToKing : function(currentPlayerPieces, threat, king)
 			{
