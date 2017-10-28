@@ -7,7 +7,7 @@
 		body{margin:0;padding:0;background:#000}
 		table{margin: auto;margin-top: 50vh;transform: translateY(-50%)}
 		td{width:66px;height:66px;border:2px solid;border-radius:6px}
-		div{border:3px solid #BADA55;position: absolute;background:#fff173;height:42px;width:110px;border-radius:6px; left:50%; top:50%;transform: translateX(-50%); margin-top: -33px; text-align: center}
+		div{border:3px solid #222;position: absolute;background:#fff173;height:42px;width:110px;border-radius:6px; left:50%; top:50%;transform: translateX(-50%); margin-top: -33px; text-align: center}
 		button{background: #BADA55;border-radius:6px;display:block; margin: auto}
 		.black{background:#433}
 		.white{background:#FB1}
@@ -246,7 +246,7 @@
             panel : function(text, restart)
             {
                 const panel = document.createElement('div')
-                panel.textContent = text
+                panel.innerHTML = text
                 if(restart)
                 {
                     const btn = document.createElement('button')
@@ -370,6 +370,33 @@
 					this.clean()
 				}
 			},
+            
+            promotion : function(selected)
+            {
+                if(this.turn == -1 && this.botBool)
+                    selected.id = 'queen'
+                else
+                {
+                    let side = this.turn == 1 ? 'W' : 'B' 
+                    this.panel(`<img id='1' height='36' width='36' src='img/queen${side}.png'><img id='2' height='36' width='36' src='img/knight${side}.png'><img id='3' height='36' width='36' src='img/rook${side}.png'>`, false)
+                    document.getElementById('1').addEventListener('click', function()
+                    {
+                        selected.id = 'queen'
+                        document.querySelector('div').remove()
+                    })
+                    document.getElementById('2').addEventListener('click', function()
+                    {
+                        selected.id = 'knight' 
+                        document.querySelector('div').remove()
+                    })
+                    document.getElementById('3').addEventListener('click', function()
+                    {
+                        selected.id = 'rook'
+                        document.querySelector('div').remove()
+                    })
+                    this.clean()
+                }
+            },
 			
 			highlight : function(selected, turnArg = this.turn, inception = false, analyse = true, inception_2 = false)
 			{
@@ -403,6 +430,8 @@
 										this.tabJS[selectedRow+turn][selectedCol-1].classList.add('highlight')
 							//SI APPELEE PAR LA METHODE saveToKing SUPPRIME LES HIGHLIGHTS QUI NE SONT PAS COMPRIS ENTRE LE ROI ET LA MENACE
 							}
+                            if(!analyse && (selectedRow == 0 || selectedRow == this.row-1))
+                                this.promotion(selected)
 							break;
 						}
 						case 'king':
@@ -562,8 +591,8 @@
 			}
 		}
 		
-		const row = 8
-		const col = 8
+		const row = 5
+		const col = 4
 		const bot = true
 		chess.init(row, col, bot)
 	</script>
