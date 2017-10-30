@@ -9,7 +9,7 @@ function checkPat()
 	}
 	if(count == 0)
 	{
-		this.panel('PAT !', true)
+		this.panel('Pat !', true)
 		this.botBool = false
 	}
 	this.clean()			

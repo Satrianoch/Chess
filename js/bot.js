@@ -15,7 +15,7 @@ function bot(selection)
 			if(highlighted[i].id)
 				botSelection = highlighted[i]
 		}
-		setTimeout(function(){play(botSelection)}, 600)
+		setTimeout(function(){play(botSelection)}, 750)
 	}
 	else
 	{
@@ -24,7 +24,9 @@ function bot(selection)
 		{
 			random = Math.floor(Math.random() * currentPlayerPieces.length)
 			botSelection = currentPlayerPieces[random]
-			for(let i = 0; i < currentPlayerPieces.length; i++)
+		}
+		while(this.selection == botSelection)
+		for(let i = 0; i < currentPlayerPieces.length; i++)
 			{
 				this.highlight(currentPlayerPieces[i])
 				highlighted = Array.from(this.body.querySelectorAll('.highlight'))
@@ -36,8 +38,6 @@ function bot(selection)
 					}
 				this.clean()
 			}
-		}
-		while(this.selection == botSelection)
 		this.play(botSelection)
 	}	
 }

@@ -21,7 +21,13 @@ function play(selection)
 		if(this.body.querySelectorAll('#king').length < 2)
 		{
 			this.clean()
-			alert('Les ' + (this.turn == 1 ? 'blancs' : 'noirs') + ' ont gagnés.')
+			this.panel((this.turn == 1 ? 'Whites' : 'Blacks') + ' win', true)
+			return
+		}
+		if(this.body.querySelectorAll('[id]').length <= 2)
+		{
+			this.clean()
+			this.panel('Drawn', true)
 			return
 		}
 		this.turn = (this.turn == 1) ? -1 : 1
@@ -32,7 +38,7 @@ function play(selection)
 			this.checkPat()
 		this.whoIsLimited()
 		if(this.botBool && this.turn == -1)
-			this.bot()
+			setTimeout(function(){this.bot()}, 750)
 	}
 	//SI LA CASE EST VIDE ENLEVE LA SELECTION ACTUELLE
 	if(!selection.id)
