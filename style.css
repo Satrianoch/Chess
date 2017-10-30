@@ -1,0 +1,22 @@
+body{margin:0;padding:0;background:#000}
+table{margin: auto;margin-top: 50vh;transform: translateY(-50%)}
+td{width:66px;height:66px;border:2px solid;border-radius:6px}
+div{border:3px solid #222;position: absolute;background:#fff173;height:42px;width:110px;border-radius:6px; left:50%; top:50%;transform: translateX(-50%); margin-top: -33px; text-align: center}
+button{background: #BADA55;border-radius:6px;display:block; margin: auto}
+.black{background:#433}
+.white{background:#FB1}
+.select{background:#23D}
+.highlight{background:#1CE}
+.check{background:#BA2B1E}
+#pawn[data-player='-1']{background-image: url('img/pawnB.png'); background-size: 100% 100%}
+#pawn[data-player='1']{background-image: url('img/pawnW.png'); background-size: 100% 100%}
+#rook[data-player='-1']{background-image: url('img/rookB.png'); background-size: 100% 100%}
+#rook[data-player='1']{background-image: url('img/rookW.png'); background-size: 100% 100%}
+#bishop[data-player='-1']{background-image: url('img/bishopB.png'); background-size: 100% 100%}
+#bishop[data-player='1']{background-image: url('img/bishopW.png'); background-size: 100% 100%}
+#knight[data-player='-1']{background-image: url('img/knightB.png'); background-size: 100% 100%}
+#knight[data-player='1']{background-image: url('img/knightW.png'); background-size: 100% 100%}
+#queen[data-player='-1']{background-image: url('img/queenB.png'); background-size: 100% 100%}
+#queen[data-player='1']{background-image: url('img/queenW.png'); background-size: 100% 100%}
+#king[data-player='-1']{background-image: url('img/kingB.png'); background-size: 100% 100%}
+#king[data-player='1']{background-image: url('img/kingW.png'); background-size: 100% 100%}
