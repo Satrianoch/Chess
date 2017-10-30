@@ -575,9 +575,14 @@
 					const highlighted = Array.from(this.body.querySelectorAll('.highlight'))
 					random = Math.floor(Math.random() * highlighted.length)
 					botSelection = highlighted[random]
+					for(let i = 0; i < highlighted.length; i++)
+					{
+						if(highlighted[i].id)
+							botSelection = highlighted[i]
+					}
 					setTimeout(function(){chess.play(botSelection)}, 600)
 				}
-				else		
+				else
 				{
 					const currentPlayerPieces = Array.from(this.body.querySelectorAll(`[data-player='${this.turn}']`))
 					do
@@ -591,8 +596,8 @@
 			}
 		}
 		
-		const row = 5
-		const col = 4
+		const row = 8
+		const col = 8
 		const bot = true
 		chess.init(row, col, bot)
 	</script>
