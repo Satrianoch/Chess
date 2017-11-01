@@ -20,6 +20,7 @@ function bot(selection)
 	else
 	{
 		const currentPlayerPieces = Array.from(this.body.querySelectorAll(`[data-player='${this.turn}']`))
+		const opposantPlayerPieces = Array.from(this.body.querySelectorAll(`[data-player='${-this.turn}']`))
 		do
 		{
 			random = Math.floor(Math.random() * currentPlayerPieces.length)
@@ -33,7 +34,16 @@ function bot(selection)
 				for(let j = 0; j < highlighted.length; j++)
 					if(highlighted[j].id)
 					{
-						botSelection = currentPlayerPieces[i]
+						this.clean()
+						for(let k = 0; k < opposantPlayerPieces.length; k++)
+							this.highlight(opposantPlayerPieces[k], -this.turn, true)
+
+						if(!Array.from(highlighted[j].classList).includes('highlight') || currentPlayerPieces[i].id == 'pawn')
+						{
+							botSelection = currentPlayerPieces[i]
+							j = highlighted.length
+							i = currentPlayerPieces.length
+						}
 						break
 					}
 				this.clean()
