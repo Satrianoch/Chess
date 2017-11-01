@@ -56,7 +56,7 @@ function highlight(selected, turnArg = this.turn, inception = false, analyse = t
 						checkRow = selectedRow+checkHighlight[i][0]
 						checkCol = selectedCol+checkHighlight[i][1]
 						//STOCKAGE DES CASES QUI NE DEBORDENT PAS DU PLATEAU, NE SONT PAS ALLIE ET NE SONT PAS DANS LE CHAMPS D'ATTAQUE D'UN ENNEMI
-						if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && this.tabJS[checkRow][checkCol].dataset.player != turn && !Array.from(this.tabJS[checkRow][checkCol].classList).includes('highlight'))
+						if((checkRow <= this.row-1 && checkRow >= 0 && checkCol <= this.col-1 && checkCol >= 0) && (this.tabJS[checkRow][checkCol].dataset.player != turn && !Array.from(this.tabJS[checkRow][checkCol].classList).includes('highlight') || inception))
 							toHighlight.push(this.tabJS[checkRow][checkCol])
 							//CLEAN DU HIGHLIGHT DE TOUS LES HIGHLIGHTS SI LA FONCTION N'EST PAS APPELEE PAR LE ROI ADVERSE ET AJOUT DU CELUI DU ROI
 					}
