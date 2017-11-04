@@ -6,7 +6,6 @@ button{background: #BADA55;border-radius:6px;display:block; margin: auto}
 .black{background:#433}
 .white{background:#FB1}
 .select{background:#23D}
-.highlight{background:#1CE}
 .check{background:#BA2B1E}
 #pawn[data-player='-1']{background-image: url('img/pawnB.png'); background-size: 100% 100%}
 #pawn[data-player='1']{background-image: url('img/pawnW.png'); background-size: 100% 100%}

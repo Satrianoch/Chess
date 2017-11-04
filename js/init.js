@@ -13,6 +13,7 @@ function init(row, col, bot)
 	this.threatToKingCommon = null
 	this.limitedPiece = null
 	this.botBool = bot
+	this.sheet = document.createElement('style')
 
 	for(let i = this.row-1; i >= 0; i--)
 	{
@@ -34,4 +35,5 @@ function init(row, col, bot)
 		this.tabHTML.appendChild(tr)
 	}
 	this.body.appendChild(this.tabHTML)
+	this.body.appendChild(this.sheet)
 }
