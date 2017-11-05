@@ -21,6 +21,7 @@ function play(selection)
 	if(Array.from(selection.classList).includes('highlight'))
 	{
 		this.deplace(this.selection, selection)
+		this.count++
 		//FIN PROVISOIRE LORSQUE LE ROI EST MORT
 		if(this.body.querySelectorAll('#king').length < 2)
 		{

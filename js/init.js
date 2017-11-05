@@ -13,8 +13,10 @@ function init(row, col, bot)
 	this.threatToKingCommon = null
 	this.limitedPiece = null
 	this.botBool = bot
-	this.delay = 5
+	this.delay = 600
 	this.sheet = document.createElement('style')
+	this.count = 1
+	this.scholar = 0
 
 	for(let i = this.row-1; i >= 0; i--)
 	{
