@@ -1,6 +1,6 @@
 function play(selection)
 {
-	this.sheet.innerHTML = '.highlight {background:#1CE}';
+	this.sheet.innerHTML = '.highlight {background:#1CE}'
 	//SELECTION D'UNE CASE AU PREMIER TOUR SEULEMENT
 	if(this.selection == undefined)
 		this.selection = selection
@@ -13,7 +13,7 @@ function play(selection)
 		this.highlight(selection, this.turn, false, false)
 		if(this.botBool && this.turn == -1)
 		{
-			this.sheet.innerHTML = '';
+			this.sheet.innerHTML = ''
 			this.bot()
 		}
 	}

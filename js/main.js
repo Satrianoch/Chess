@@ -1,6 +1,7 @@
 function clickOnBtn()
 {
 	body.removeChild(document.querySelector('table'))
+	sheet.innerHTML = ''
 	selection = undefined
 	init(row, col, startBot)
 }
