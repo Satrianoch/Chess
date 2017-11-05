@@ -42,7 +42,7 @@ function play(selection)
 			this.checkPat()
 		this.whoIsLimited()
 		if(this.botBool && this.turn == -1)
-			setTimeout(function(){this.bot()}, 750)
+			setTimeout(function(){this.bot()}, this.delay)
 	}
 	//SI LA CASE EST VIDE ENLEVE LA SELECTION ACTUELLE
 	if(!selection.id)

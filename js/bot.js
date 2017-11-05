@@ -15,7 +15,7 @@ function bot(selection)
 			if(highlighted[i].id)
 				botSelection = highlighted[i]
 		}
-		setTimeout(function(){play(botSelection)}, 750)
+		setTimeout(function(){play(botSelection)}, this.delay)
 	}
 	else
 	{
@@ -38,7 +38,7 @@ function bot(selection)
 					for(let k = 0; k < opposantPlayerPieces.length; k++)
 						this.highlight(opposantPlayerPieces[k], -this.turn, true)
 
-					if(!Array.from(highlighted[j].classList).includes('highlight') || currentPlayerPieces[i].id == 'pawn')
+					if((!Array.from(highlighted[j].classList).includes('highlight') || currentPlayerPieces[i].id == 'pawn') && currentPlayerPieces[i] != this.limitedPiece)
 					{
 						botSelection = currentPlayerPieces[i]
 						j = highlighted.length
