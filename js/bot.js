@@ -16,6 +16,8 @@ function bot(selection)
 			botSelection = this.tabJS[3][0]
 		else if(this.count == 8 && this.scholar == 3)
 			botSelection = this.tabJS[7][4]
+		else if(this.count == 8 && this.scholar == 4)
+			botSelection = this.tabJS[1][2]
 		else
 		{
 			random = Math.floor(Math.random() * highlighted.length)
@@ -59,7 +61,6 @@ function bot(selection)
 							j = highlighted.length
 							i = currentPlayerPieces.length
 						}
-						break
 					}
 				this.clean()
 			}
